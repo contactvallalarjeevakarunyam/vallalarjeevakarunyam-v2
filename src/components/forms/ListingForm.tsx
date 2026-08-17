@@ -1,5 +1,5 @@
 'use client'
-
+import LocationSelector from '@/components/location/LocationSelector'
 import { useState } from 'react'
 import FormField from './FormField'
 import FormSelect from './FormSelect'
@@ -46,6 +46,10 @@ const initialFormData: Record<string, string> = {
 
 export default function ListingForm() {
   const [formData, setFormData] = useState<Record<string, string>>(initialFormData)
+  const [location, setLocation] = useState({
+  state_id: null as number | null,
+  district_id: null as number | null,
+})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
@@ -76,7 +80,13 @@ export default function ListingForm() {
 
     try {
       // Validate form data with Zod
-      const validatedData = listingFormSchema.parse(formData)
+      const payload = {
+  ...formData,
+  state_id: location.state_id,
+  district_id: location.district_id,
+}
+
+const validatedData = listingFormSchema.parse(payload)
 
       setLoading(true)
 
@@ -92,6 +102,11 @@ export default function ListingForm() {
 
       setSuccessMessage('Listing submitted successfully! We will review it shortly.')
       setFormData(initialFormData)
+
+setLocation({
+  state_id: null,
+  district_id: null,
+})
     } catch (error) {
       if (error instanceof ZodError) {
         const fieldErrors: Record<string, string> = {}
@@ -160,74 +175,62 @@ export default function ListingForm() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormSelect
-          label="Country"
-          name="country"
-          options={countries}
-          value={formData.country}
-          onChange={handleChange}
-          error={errors.country}
-          required
-        />
+  <FormSelect
+    label="Country"
+    name="country"
+    options={countries}
+    value={formData.country}
+    onChange={handleChange}
+    error={errors.country}
+    required
+  />
 
-        <FormSelect
-          label="State"
-          name="state"
-          options={states}
-          value={formData.state}
-          onChange={handleChange}
-          error={errors.state}
-          required
-        />
-      </div>
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Location
+    </label>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          label="District"
-          name="district"
-          type="text"
-          placeholder="e.g., Kanniyakumari"
-          value={formData.district}
-          onChange={handleChange}
-          error={errors.district}
-          required
-        />
+    <LocationSelector
+      value={location}
+      onChange={setLocation}
+    />
+  </div>
+</div>
 
-        <FormField
-          label="Taluk / Sub-District"
-          name="taluk"
-          type="text"
-          placeholder="e.g., Nagercoil"
-          value={formData.taluk}
-          onChange={handleChange}
-          error={errors.taluk}
-          required
-        />
-      </div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <FormField
+    label="Taluk / Sub-District"
+    name="taluk"
+    type="text"
+    placeholder="e.g., Nagercoil"
+    value={formData.taluk}
+    onChange={handleChange}
+    error={errors.taluk}
+    required
+  />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          label="Panchayat / Municipality"
-          name="panchayat"
-          type="text"
-          placeholder="e.g., Mahabalipuram Municipality"
-          value={formData.panchayat}
-          onChange={handleChange}
-          error={errors.panchayat}
-          required
-        />
+  <FormField
+    label="Panchayat / Municipality"
+    name="panchayat"
+    type="text"
+    placeholder="e.g., Mahabalipuram Municipality"
+    value={formData.panchayat}
+    onChange={handleChange}
+    error={errors.panchayat}
+    required
+  />
+</div>
 
-        <FormField
-          label="Village / Town"
-          name="village"
-          type="text"
-          placeholder="e.g., Mahabalipuram"
-          value={formData.village}
-          onChange={handleChange}
-          error={errors.village}
-          required
-        />
-      </div>
+<FormField
+  label="Village / Town"
+  name="village"
+  type="text"
+  placeholder="e.g., Mahabalipuram"
+  value={formData.village}
+  onChange={handleChange}
+  error={errors.village}
+  required
+/>
 
       <FormField
         label="Google Maps URL"
