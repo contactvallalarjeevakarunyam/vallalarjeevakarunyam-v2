@@ -8,6 +8,9 @@ export async function getStates() {
     .select("*")
     .order("name");
 
+  console.log("States data:", data);
+  console.log("States error:", error);
+
   if (error) throw error;
   return data;
 }
@@ -18,6 +21,9 @@ export async function getDistricts(stateId: number) {
     .select("*")
     .eq("state_id", stateId)
     .order("name");
+
+  console.log("Districts data:", data);
+  console.log("Districts error:", error);
 
   if (error) throw error;
   return data;
