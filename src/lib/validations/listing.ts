@@ -13,17 +13,21 @@ export const listingFormSchema = z.object({
     .string()
     .min(10, 'Description must be at least 10 characters'),
 
+  timing: z
+    .string()
+    .min(1, 'Timing / schedule is required'),
+
   country: z
     .string()
     .min(1, 'Country is required'),
 
-  state_id: z.number({
-    required_error: 'Please select a state',
-  }),
+  state_id: z
+    .number()
+    .min(1, 'Please select a state'),
 
-  district_id: z.number({
-    required_error: 'Please select a district',
-  }),
+  district_id: z
+    .number()
+    .min(1, 'Please select a district'),
 
   taluk: z
     .string()
@@ -37,14 +41,6 @@ export const listingFormSchema = z.object({
     .string()
     .min(1, 'Village is required'),
 
-  timing: z
-    .string()
-    .max(
-      500,
-      'Timing / schedule must be less than 500 characters'
-    )
-    .optional(),
-
   googleMapsUrl: z
     .string()
     .optional(),
@@ -57,21 +53,21 @@ export const listingFormSchema = z.object({
     .string()
     .regex(
       /^[0-9]{10}$/,
-      'Enter a valid 10-digit mobile number'
+      'Mobile number must contain exactly 10 digits'
     ),
 
   whatsapp: z
     .string()
     .regex(
       /^[0-9]{10}$/,
-      'Enter a valid 10-digit WhatsApp number'
+      'WhatsApp number must contain exactly 10 digits'
     )
     .optional()
     .or(z.literal('')),
 
   email: z
     .string()
-    .email('Enter a valid email address'),
+    .email('Please enter a valid email address'),
 
   website: z
     .string()
