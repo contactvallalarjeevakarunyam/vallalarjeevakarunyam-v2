@@ -24,11 +24,15 @@ export const listingFormSchema = z
     googleMapsUrl: z.string().optional(),
     latitude: optionalCoordinate(-90, 90, 'Latitude'),
     longitude: optionalCoordinate(-180, 180, 'Longitude'),
-    contactPerson: z.string().min(2, 'Contact person is required'),
+    contactPerson: z.string().min(2, 'Place / organisation contact person is required'),
     mobileNumber: z.string().regex(/^[0-9]{10}$/, 'Mobile number must contain exactly 10 digits'),
     whatsapp: z.string().regex(/^[0-9]{10}$/, 'WhatsApp number must contain exactly 10 digits').optional().or(z.literal('')),
-    email: z.string().email('Please enter a valid email address'),
+    email: z.string().email('Please enter a valid contact email address'),
     website: z.string().optional(),
+    submitterName: z.string().min(2, 'Your name is required'),
+    submitterEmail: z.string().email('Please enter a valid submitter email address'),
+    submitterPhone: z.string().regex(/^[0-9]{10}$/, 'Submitter mobile number must contain exactly 10 digits'),
+    submitterDeclaration: z.boolean().refine((value) => value, 'Please confirm the declaration before submitting'),
   })
   .superRefine((data, ctx) => {
     if (data.listingType === 'community_service' && !data.serviceType?.trim()) {
