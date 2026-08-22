@@ -1,69 +1,23 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" }
   public: {
     Tables: {
-      admins: {
-        Row: { created_at: string; user_id: string }
-        Insert: { created_at?: string; user_id: string }
-        Update: { created_at?: string; user_id?: string }
-        Relationships: []
-      }
-      countries: {
-        Row: { id: number; name: string }
-        Insert: { id?: number; name: string }
-        Update: { id?: number; name?: string }
-        Relationships: []
-      }
-      districts: {
-        Row: { id: number; name: string; state_id: number }
-        Insert: { id?: number; name: string; state_id: number }
-        Update: { id?: number; name?: string; state_id?: number }
-        Relationships: [{ foreignKeyName: "districts_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }]
-      }
+      admins: { Row: { created_at: string; user_id: string }; Insert: { created_at?: string; user_id: string }; Update: { created_at?: string; user_id?: string }; Relationships: [] }
+      countries: { Row: { id: number; name: string }; Insert: { id?: number; name: string }; Update: { id?: number; name?: string }; Relationships: [] }
+      districts: { Row: { id: number; name: string; state_id: number }; Insert: { id?: number; name: string; state_id: number }; Update: { id?: number; name?: string; state_id?: number }; Relationships: [{ foreignKeyName: "districts_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }] }
       listings: {
-        Row: { contact_person: string | null; created_at: string | null; description: string | null; district_id: number | null; email: string | null; google_maps_url: string | null; id: number; image_url: string | null; listing_type: string; local_body_id: number | null; name: string; panchayat: string | null; phone: string | null; service_type: string | null; settlement_id: number | null; state_id: number | null; status: string | null; sub_district_id: number | null; taluk: string | null; timing: string | null; village: string | null; website: string | null; whatsapp: string | null }
-        Insert: { contact_person?: string | null; created_at?: string | null; description?: string | null; district_id?: number | null; email?: string | null; google_maps_url?: string | null; id?: number; image_url?: string | null; listing_type: string; local_body_id?: number | null; name: string; panchayat?: string | null; phone?: string | null; service_type?: string | null; settlement_id?: number | null; state_id?: number | null; status?: string | null; sub_district_id?: number | null; taluk?: string | null; timing?: string | null; village?: string | null; website?: string | null; whatsapp?: string | null }
-        Update: { contact_person?: string | null; created_at?: string | null; description?: string | null; district_id?: number | null; email?: string | null; google_maps_url?: string | null; id?: number; image_url?: string | null; listing_type?: string; local_body_id?: number | null; name?: string; panchayat?: string | null; phone?: string | null; service_type?: string | null; settlement_id?: number | null; state_id?: number | null; status?: string | null; sub_district_id?: number | null; taluk?: string | null; timing?: string | null; village?: string | null; website?: string | null; whatsapp?: string | null }
+        Row: { contact_person: string | null; created_at: string | null; description: string | null; district_id: number | null; email: string | null; google_maps_url: string | null; id: number; image_url: string | null; latitude: number | null; listing_type: string; local_body_id: number | null; longitude: number | null; name: string; panchayat: string | null; phone: string | null; service_type: string | null; settlement_id: number | null; state_id: number | null; status: string | null; sub_district_id: number | null; taluk: string | null; timing: string | null; village: string | null; website: string | null; whatsapp: string | null }
+        Insert: { contact_person?: string | null; created_at?: string | null; description?: string | null; district_id?: number | null; email?: string | null; google_maps_url?: string | null; id?: number; image_url?: string | null; latitude?: number | null; listing_type: string; local_body_id?: number | null; longitude?: number | null; name: string; panchayat?: string | null; phone?: string | null; service_type?: string | null; settlement_id?: number | null; state_id?: number | null; status?: string | null; sub_district_id?: number | null; taluk?: string | null; timing?: string | null; village?: string | null; website?: string | null; whatsapp?: string | null }
+        Update: { contact_person?: string | null; created_at?: string | null; description?: string | null; district_id?: number | null; email?: string | null; google_maps_url?: string | null; id?: number; image_url?: string | null; latitude?: number | null; listing_type?: string; local_body_id?: number | null; longitude?: number | null; name?: string; panchayat?: string | null; phone?: string | null; service_type?: string | null; settlement_id?: number | null; state_id?: number | null; status?: string | null; sub_district_id?: number | null; taluk?: string | null; timing?: string | null; village?: string | null; website?: string | null; whatsapp?: string | null }
         Relationships: [{ foreignKeyName: "listings_district_id_fkey"; columns: ["district_id"]; isOneToOne: false; referencedRelation: "districts"; referencedColumns: ["id"] }, { foreignKeyName: "listings_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }]
       }
-      local_bodies: {
-        Row: { body_type: string; created_at: string; district_id: number | null; id: number; name: string; state_id: number | null; sub_district_id: number | null }
-        Insert: { body_type?: string; created_at?: string; district_id?: number | null; id?: number; name: string; state_id?: number | null; sub_district_id?: number | null }
-        Update: { body_type?: string; created_at?: string; district_id?: number | null; id?: number; name?: string; state_id?: number | null; sub_district_id?: number | null }
-        Relationships: [{ foreignKeyName: "local_bodies_district_id_fkey"; columns: ["district_id"]; isOneToOne: false; referencedRelation: "districts"; referencedColumns: ["id"] }, { foreignKeyName: "local_bodies_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }, { foreignKeyName: "local_bodies_sub_district_id_fkey"; columns: ["sub_district_id"]; isOneToOne: false; referencedRelation: "sub_districts"; referencedColumns: ["id"] }]
-      }
-      settlements: {
-        Row: { created_at: string; district_id: number | null; id: number; local_body_id: number | null; name: string; settlement_type: string; state_id: number | null; sub_district_id: number | null }
-        Insert: { created_at?: string; district_id?: number | null; id?: number; local_body_id?: number | null; name: string; settlement_type?: string; state_id?: number | null; sub_district_id?: number | null }
-        Update: { created_at?: string; district_id?: number | null; id?: number; local_body_id?: number | null; name?: string; settlement_type?: string; state_id?: number | null; sub_district_id?: number | null }
-        Relationships: [{ foreignKeyName: "settlements_district_id_fkey"; columns: ["district_id"]; isOneToOne: false; referencedRelation: "districts"; referencedColumns: ["id"] }, { foreignKeyName: "settlements_local_body_id_fkey"; columns: ["local_body_id"]; isOneToOne: false; referencedRelation: "local_bodies"; referencedColumns: ["id"] }, { foreignKeyName: "settlements_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }, { foreignKeyName: "settlements_sub_district_id_fkey"; columns: ["sub_district_id"]; isOneToOne: false; referencedRelation: "sub_districts"; referencedColumns: ["id"] }]
-      }
-      states: {
-        Row: { country_id: number; id: number; name: string }
-        Insert: { country_id: number; id?: number; name: string }
-        Update: { country_id?: number; id?: number; name?: string }
-        Relationships: [{ foreignKeyName: "states_country_id_fkey"; columns: ["country_id"]; isOneToOne: false; referencedRelation: "countries"; referencedColumns: ["id"] }]
-      }
-      sub_districts: {
-        Row: { created_at: string; district_id: number | null; id: number; name: string; state_id: number | null }
-        Insert: { created_at?: string; district_id?: number | null; id?: number; name: string; state_id?: number | null }
-        Update: { created_at?: string; district_id?: number | null; id?: number; name?: string; state_id?: number | null }
-        Relationships: [{ foreignKeyName: "sub_districts_district_id_fkey"; columns: ["district_id"]; isOneToOne: false; referencedRelation: "districts"; referencedColumns: ["id"] }, { foreignKeyName: "sub_districts_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }]
-      }
-      volunteer_applications: {
-        Row: { city: string; created_at: string; email: string | null; id: number; interests: string[]; message: string | null; name: string; phone: string; state: string; status: string; whatsapp: string | null }
-        Insert: { city: string; created_at?: string; email?: string | null; id?: number; interests?: string[]; message?: string | null; name: string; phone: string; state: string; status?: string; whatsapp?: string | null }
-        Update: { city?: string; created_at?: string; email?: string | null; id?: number; interests?: string[]; message?: string | null; name?: string; phone?: string; state?: string; status?: string; whatsapp?: string | null }
-        Relationships: []
-      }
+      local_bodies: { Row: { body_type: string; created_at: string; district_id: number | null; id: number; name: string; state_id: number | null; sub_district_id: number | null }; Insert: { body_type?: string; created_at?: string; district_id?: number | null; id?: number; name: string; state_id?: number | null; sub_district_id?: number | null }; Update: { body_type?: string; created_at?: string; district_id?: number | null; id?: number; name?: string; state_id?: number | null; sub_district_id?: number | null }; Relationships: [{ foreignKeyName: "local_bodies_district_id_fkey"; columns: ["district_id"]; isOneToOne: false; referencedRelation: "districts"; referencedColumns: ["id"] }, { foreignKeyName: "local_bodies_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }, { foreignKeyName: "local_bodies_sub_district_id_fkey"; columns: ["sub_district_id"]; isOneToOne: false; referencedRelation: "sub_districts"; referencedColumns: ["id"] }] }
+      settlements: { Row: { created_at: string; district_id: number | null; id: number; local_body_id: number | null; name: string; settlement_type: string; state_id: number | null; sub_district_id: number | null }; Insert: { created_at?: string; district_id?: number | null; id?: number; local_body_id?: number | null; name: string; settlement_type?: string; state_id?: number | null; sub_district_id?: number | null }; Update: { created_at?: string; district_id?: number | null; id?: number; local_body_id?: number | null; name?: string; settlement_type?: string; state_id?: number | null; sub_district_id?: number | null }; Relationships: [{ foreignKeyName: "settlements_district_id_fkey"; columns: ["district_id"]; isOneToOne: false; referencedRelation: "districts"; referencedColumns: ["id"] }, { foreignKeyName: "settlements_local_body_id_fkey"; columns: ["local_body_id"]; isOneToOne: false; referencedRelation: "local_bodies"; referencedColumns: ["id"] }, { foreignKeyName: "settlements_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }, { foreignKeyName: "settlements_sub_district_id_fkey"; columns: ["sub_district_id"]; isOneToOne: false; referencedRelation: "sub_districts"; referencedColumns: ["id"] }] }
+      states: { Row: { country_id: number; id: number; name: string }; Insert: { country_id: number; id?: number; name: string }; Update: { country_id?: number; id?: number; name?: string }; Relationships: [{ foreignKeyName: "states_country_id_fkey"; columns: ["country_id"]; isOneToOne: false; referencedRelation: "countries"; referencedColumns: ["id"] }] }
+      sub_districts: { Row: { created_at: string; district_id: number | null; id: number; name: string; state_id: number | null }; Insert: { created_at?: string; district_id?: number | null; id?: number; name: string; state_id?: number | null }; Update: { created_at?: string; district_id?: number | null; id?: number; name?: string; state_id?: number | null }; Relationships: [{ foreignKeyName: "sub_districts_district_id_fkey"; columns: ["district_id"]; isOneToOne: false; referencedRelation: "districts"; referencedColumns: ["id"] }, { foreignKeyName: "sub_districts_state_id_fkey"; columns: ["state_id"]; isOneToOne: false; referencedRelation: "states"; referencedColumns: ["id"] }] }
+      volunteer_applications: { Row: { city: string; created_at: string; email: string | null; id: number; interests: string[]; message: string | null; name: string; phone: string; state: string; status: string; whatsapp: string | null }; Insert: { city: string; created_at?: string; email?: string | null; id?: number; interests?: string[]; message?: string | null; name: string; phone: string; state: string; status?: string; whatsapp?: string | null }; Update: { city?: string; created_at?: string; email?: string | null; id?: number; interests?: string[]; message?: string | null; name?: string; phone?: string; state?: string; status?: string; whatsapp?: string | null }; Relationships: [] }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
@@ -74,11 +28,9 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
-export type Tables<DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"]) | { schema: keyof DatabaseWithoutInternals }, TableName extends DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] & DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"]) : never = never> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] & DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends { Row: infer R } ? R : never : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"]) ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends { Row: infer R } ? R : never : never
-export type TablesInsert<DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals }, TableName extends DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] : never = never> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends { Insert: infer I } ? I : never : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends { Insert: infer I } ? I : never : never
-export type TablesUpdate<DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals }, TableName extends DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] : never = never> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends { Update: infer U } ? U : never : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"] ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends { Update: infer U } ? U : never : never
-export type Enums<DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals }, EnumName extends DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"] : never = never> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName] : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"] ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions] : never
-export type CompositeTypes<PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"] | { schema: keyof DatabaseWithoutInternals }, CompositeTypeName extends PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"] : never = never> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals } ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName] : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"] ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions] : never
-
+export type Tables<N extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])> = (DefaultSchema["Tables"] & DefaultSchema["Views"])[N] extends { Row: infer R } ? R : never
+export type TablesInsert<N extends keyof DefaultSchema["Tables"]> = DefaultSchema["Tables"][N] extends { Insert: infer I } ? I : never
+export type TablesUpdate<N extends keyof DefaultSchema["Tables"]> = DefaultSchema["Tables"][N] extends { Update: infer U } ? U : never
+export type Enums<N extends keyof DefaultSchema["Enums"]> = DefaultSchema["Enums"][N]
+export type CompositeTypes<N extends keyof DefaultSchema["CompositeTypes"]> = DefaultSchema["CompositeTypes"][N]
 export const Constants = { public: { Enums: {} } } as const
