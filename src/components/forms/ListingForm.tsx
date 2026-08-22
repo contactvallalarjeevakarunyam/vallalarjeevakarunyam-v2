@@ -14,20 +14,98 @@ import type { TablesInsert } from '@/types/database.generated'
 import FormField from './FormField'
 import FormSelect from './FormSelect'
 
+// =====================================================
+// LISTING TYPES
+// =====================================================
+
 const listingTypes = [
-  { value: 'annadhanam', label: 'Annadhanam' },
-  { value: 'jeeva_samadhi', label: 'Jeeva Samadhi' },
-  { value: 'temple', label: 'Temple' },
-  { value: 'stay', label: 'Stay' },
-  { value: 'volunteer', label: 'Volunteer' },
+  {
+    value: 'annadhanam',
+    label: 'Annadhanam',
+  },
+  {
+    value: 'jeeva_samadhi',
+    label: 'Jeeva Samadhi',
+  },
+  {
+    value: 'temple',
+    label: 'Temples & Meditation Centres',
+  },
+  {
+    value: 'stay',
+    label: 'Affordable Stays',
+  },
+  {
+    value: 'medical',
+    label: 'Affordable Medical Services',
+  },
+  {
+    value: 'community_service',
+    label: 'Community Service',
+  },
+]
+
+// =====================================================
+// COMMUNITY SERVICE TYPES
+// =====================================================
+
+const serviceTypes = [
+  {
+    value: 'ulavara_pani',
+    label: 'Ulavara Pani',
+  },
+  {
+    value: 'water_body_restoration',
+    label: 'Water Body Restoration',
+  },
+  {
+    value: 'tree_planting',
+    label: 'Tree Planting',
+  },
+  {
+    value: 'environmental_conservation',
+    label: 'Environmental Conservation',
+  },
+  {
+    value: 'temple_service',
+    label: 'Temple Service',
+  },
+  {
+    value: 'heritage_conservation',
+    label: 'Heritage Conservation',
+  },
+  {
+    value: 'food_service',
+    label: 'Annadhanam / Food Service',
+  },
+  {
+    value: 'animal_welfare',
+    label: 'Animal Welfare',
+  },
+  {
+    value: 'community_social_service',
+    label: 'Community / Social Service',
+  },
+  {
+    value: 'other',
+    label: 'Other',
+  },
 ]
 
 const countries = [
-  { value: 'india', label: 'India' },
+  {
+    value: 'india',
+    label: 'India',
+  },
 ]
+
+// =====================================================
+// TYPES
+// =====================================================
 
 type FormState = {
   listingType: string
+  serviceType: string
   name: string
   description: string
   country: string
@@ -48,8 +126,13 @@ type LocationState = {
   district_id: number | null
 }
 
+// =====================================================
+// INITIAL VALUES
+// =====================================================
+
 const initialFormData: FormState = {
   listingType: '',
+  serviceType: '',
   name: '',
   description: '',
   country: 'india',
@@ -69,6 +152,10 @@ const initialLocation: LocationState = {
   state_id: null,
   district_id: null,
 }
+
+// =====================================================
+// COMPONENT
+// =====================================================
 
 export default function ListingForm() {
   const [formData, setFormData] =
@@ -105,12 +192,30 @@ export default function ListingForm() {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+
+      // Remove Community Service classification
+      // when another listing type is selected.
+      ...(name === 'listingType' &&
+      value !== 'community_service'
+        ? { serviceType: '' }
+        : {}),
     }))
 
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: '',
+      }))
+    }
+
+    if (
+      name === 'listingType' &&
+      value !== 'community_service' &&
+      errors.serviceType
+    ) {
+      setErrors((prev) => ({
+        ...prev,
+        serviceType: '',
       }))
     }
   }
@@ -174,6 +279,13 @@ export default function ListingForm() {
       const insertData: TablesInsert<'listings'> = {
         listing_type:
           validatedData.listingType,
+
+        service_type:
+          validatedData.listingType ===
+          'community_service'
+            ? validatedData.serviceType?.trim() ||
+              null
+            : null,
 
         name:
           validatedData.name.trim(),
@@ -311,9 +423,11 @@ export default function ListingForm() {
 
       {successMessage && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+
           <p className="text-green-800 font-medium">
             {successMessage}
           </p>
+
         </div>
       )}
 
@@ -321,9 +435,11 @@ export default function ListingForm() {
 
       {errorMessage && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+
           <p className="text-red-800 font-medium">
             {errorMessage}
           </p>
+
         </div>
       )}
 
@@ -342,10 +458,20 @@ export default function ListingForm() {
         />
 
         <FormField
-          label="Name"
+          label={
+            formData.listingType ===
+            'community_service'
+              ? 'Organisation / Group Name'
+              : 'Name'
+          }
           name="name"
           type="text"
-          placeholder="e.g., Sri Vallalar Annadhanam Center"
+          placeholder={
+            formData.listingType ===
+            'community_service'
+              ? 'e.g., Community Service Organisation'
+              : 'e.g., Sri Vallalar Annadhanam Center'
+          }
           value={formData.name}
           onChange={handleChange}
           error={errors.name}
@@ -354,13 +480,45 @@ export default function ListingForm() {
 
       </div>
 
+      {/* COMMUNITY SERVICE TYPE */}
+
+      {formData.listingType ===
+        'community_service' && (
+
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
+
+          <FormSelect
+            label="Service Type"
+            name="serviceType"
+            options={serviceTypes}
+            value={formData.serviceType}
+            onChange={handleChange}
+            error={errors.serviceType}
+            required
+          />
+
+          <p className="text-sm text-gray-600 mt-2">
+            Select the main type of community or
+            social service carried out by this
+            organisation or group.
+          </p>
+
+        </div>
+
+      )}
+
       {/* DESCRIPTION */}
 
       <FormField
         label="Description"
         name="description"
         type="textarea"
-        placeholder="Describe the listing, services, or activities..."
+        placeholder={
+          formData.listingType ===
+          'community_service'
+            ? 'Describe the organisation, its activities and how people can participate...'
+            : 'Describe the listing, services, or activities...'
+        }
         value={formData.description}
         onChange={handleChange}
         error={errors.description}
@@ -395,10 +553,12 @@ export default function ListingForm() {
 
           {(errors.state_id ||
             errors.district_id) && (
+
             <p className="mt-2 text-sm text-red-600">
               {errors.state_id ||
                 errors.district_id}
             </p>
+
           )}
 
         </div>
@@ -451,10 +611,20 @@ export default function ListingForm() {
       <div>
 
         <FormField
-          label="Timing / Schedule"
+          label={
+            formData.listingType ===
+            'community_service'
+              ? 'Activity Timing / Schedule'
+              : 'Timing / Schedule'
+          }
           name="timing"
           type="textarea"
-          placeholder="e.g., Daily - 12:00 PM to 2:00 PM"
+          placeholder={
+            formData.listingType ===
+            'community_service'
+              ? 'e.g., Every Sunday 7:00 AM or activities announced periodically'
+              : 'e.g., Daily - 12:00 PM to 2:00 PM'
+          }
           value={formData.timing}
           onChange={handleChange}
           error={errors.timing}
@@ -462,9 +632,12 @@ export default function ListingForm() {
         />
 
         <p className="text-sm text-gray-500 mt-1">
-          Example: Daily 12:00 PM - 2:00 PM,
-          Every Sunday 1:00 PM, or Pournami days
-          from 12:30 PM.
+
+          {formData.listingType ===
+          'community_service'
+            ? 'Mention regular activity days, timings, or how upcoming service activities are announced.'
+            : 'Example: Daily 12:00 PM - 2:00 PM, Every Sunday 1:00 PM, or Pournami days from 12:30 PM.'}
+
         </p>
 
       </div>
@@ -488,6 +661,17 @@ export default function ListingForm() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Contact Information
         </h3>
+
+        {formData.listingType ===
+          'community_service' && (
+
+          <p className="text-sm text-gray-600 mb-5">
+            Provide contact details that members of the
+            public can use to enquire about volunteering
+            or participating in service activities.
+          </p>
+
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -541,7 +725,7 @@ export default function ListingForm() {
         </div>
 
         <FormField
-          label="Website"
+          label="Website / Social Media Page"
           name="website"
           type="url"
           placeholder="https://example.com (optional)"

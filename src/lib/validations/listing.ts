@@ -1,78 +1,95 @@
 import { z } from 'zod'
 
-export const listingFormSchema = z.object({
-  listingType: z
-    .string()
-    .min(1, 'Listing type is required'),
+export const listingFormSchema = z
+  .object({
+    listingType: z
+      .string()
+      .min(1, 'Listing type is required'),
 
-  name: z
-    .string()
-    .min(2, 'Name must be at least 2 characters'),
+    serviceType: z
+      .string()
+      .optional(),
 
-  description: z
-    .string()
-    .min(10, 'Description must be at least 10 characters'),
+    name: z
+      .string()
+      .min(2, 'Name must be at least 2 characters'),
 
-  timing: z
-    .string()
-    .min(1, 'Timing / schedule is required'),
+    description: z
+      .string()
+      .min(10, 'Description must be at least 10 characters'),
 
-  country: z
-    .string()
-    .min(1, 'Country is required'),
+    timing: z
+      .string()
+      .min(1, 'Timing / schedule is required'),
 
-  state_id: z
-    .number()
-    .min(1, 'Please select a state'),
+    country: z
+      .string()
+      .min(1, 'Country is required'),
 
-  district_id: z
-    .number()
-    .min(1, 'Please select a district'),
+    state_id: z
+      .number()
+      .min(1, 'Please select a state'),
 
-  taluk: z
-    .string()
-    .min(1, 'Taluk is required'),
+    district_id: z
+      .number()
+      .min(1, 'Please select a district'),
 
-  panchayat: z
-    .string()
-    .min(1, 'Panchayat is required'),
+    taluk: z
+      .string()
+      .min(1, 'Taluk is required'),
 
-  village: z
-    .string()
-    .min(1, 'Village is required'),
+    panchayat: z
+      .string()
+      .min(1, 'Panchayat is required'),
 
-  googleMapsUrl: z
-    .string()
-    .optional(),
+    village: z
+      .string()
+      .min(1, 'Village is required'),
 
-  contactPerson: z
-    .string()
-    .min(2, 'Contact person is required'),
+    googleMapsUrl: z
+      .string()
+      .optional(),
 
-  mobileNumber: z
-    .string()
-    .regex(
-      /^[0-9]{10}$/,
-      'Mobile number must contain exactly 10 digits'
-    ),
+    contactPerson: z
+      .string()
+      .min(2, 'Contact person is required'),
 
-  whatsapp: z
-    .string()
-    .regex(
-      /^[0-9]{10}$/,
-      'WhatsApp number must contain exactly 10 digits'
-    )
-    .optional()
-    .or(z.literal('')),
+    mobileNumber: z
+      .string()
+      .regex(
+        /^[0-9]{10}$/,
+        'Mobile number must contain exactly 10 digits'
+      ),
 
-  email: z
-    .string()
-    .email('Please enter a valid email address'),
+    whatsapp: z
+      .string()
+      .regex(
+        /^[0-9]{10}$/,
+        'WhatsApp number must contain exactly 10 digits'
+      )
+      .optional()
+      .or(z.literal('')),
 
-  website: z
-    .string()
-    .optional(),
-})
+    email: z
+      .string()
+      .email('Please enter a valid email address'),
+
+    website: z
+      .string()
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.listingType === 'community_service' &&
+      !data.serviceType?.trim()
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['serviceType'],
+        message: 'Service type is required',
+      })
+    }
+  })
 
 export type ListingFormData =
   z.infer<typeof listingFormSchema>

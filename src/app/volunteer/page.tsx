@@ -1,8 +1,37 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import ListingsExplorer from '@/components/listings/ListingsExplorer'
+
+// =====================================================
+// SERVICE TYPE LABELS
+// =====================================================
+
+function getServiceTypeLabel(type: string | null) {
+  const labels: Record<string, string> = {
+    ulavara_pani: 'Ulavara Pani',
+    water_body_restoration: 'Water Body Restoration',
+    tree_planting: 'Tree Planting',
+    environmental_conservation: 'Environmental Conservation',
+    temple_service: 'Temple Service',
+    heritage_conservation: 'Heritage Conservation',
+    food_service: 'Annadhanam / Food Service',
+    animal_welfare: 'Animal Welfare',
+    community_social_service: 'Community / Social Service',
+    other: 'Other',
+  }
+
+  return type ? labels[type] || type : '-'
+}
+
+// =====================================================
+// PAGE
+// =====================================================
 
 export default async function VolunteerPage() {
   const supabase = await createClient()
+
+  // Only approved Community Service listings
+  // are shown publicly on this page.
 
   const { data: listings, error } = await supabase
     .from('listings')
@@ -15,277 +44,373 @@ export default async function VolunteerPage() {
         name
       )
     `)
-    .eq('listing_type', 'volunteer')
+    .eq('listing_type', 'community_service')
     .eq('status', 'approved')
-    .order('created_at', { ascending: false })
+    .order('created_at', {
+      ascending: false,
+    })
 
   return (
     <main className="min-h-screen bg-gray-50">
+
       <div className="max-w-6xl mx-auto px-4 py-10">
 
-        {/* HEADER */}
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
-        <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center text-sm font-medium text-emerald-700 hover:text-emerald-800 mb-5"
-          >
-            ← Back to Home
-          </Link>
+        <div className="mb-10">
 
           <p className="text-sm font-semibold text-emerald-700 mb-2">
             Vallalar Jeevakarunyam
           </p>
 
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Volunteer
+            Volunteer & Community Service
           </h1>
 
-          <p className="text-gray-600 mt-3 max-w-2xl">
-            Discover approved opportunities to volunteer and serve
-            living beings through compassionate activities.
+          <p className="text-gray-600 mt-3 max-w-3xl leading-7">
+            Find ways to contribute to Vallalar Jeevakarunyam
+            or connect with organisations and groups carrying out
+            compassionate, environmental and community service.
           </p>
+
         </div>
 
-        {/* ERROR */}
+        {/* =================================================
+            TWO VOLUNTEER PATHS
+        ================================================= */}
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-5">
-            Unable to load Volunteer listings.
-          </div>
-        )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-14">
 
-        {/* EMPTY */}
+          {/* =================================================
+              VOLUNTEER WITH US
+          ================================================= */}
 
-        {!error && (!listings || listings.length === 0) && (
-          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+          <section className="bg-white border border-emerald-200 rounded-2xl p-7 shadow-sm">
 
-            <h2 className="text-xl font-semibold text-gray-900">
-              No approved Volunteer listings yet
+            <div className="text-4xl mb-4">
+              🤝
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900">
+              Volunteer With Us
             </h2>
 
-            <p className="text-gray-600 mt-2">
-              Know a volunteer opportunity? Submit the details for review.
+            <p className="text-gray-600 mt-3 leading-7">
+              Help Vallalar Jeevakarunyam identify useful services,
+              verify information submitted by the public and keep
+              our listings accurate and useful for everyone.
             </p>
 
-            <Link
-              href="/submit"
-              className="inline-flex mt-5 px-5 py-2.5 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 transition"
-            >
-              Submit a Listing
-            </Link>
+            <div className="mt-6 space-y-3 text-sm text-gray-700">
 
-          </div>
-        )}
+              {/* IDENTIFY SPIRITUAL / SERVICE LOCATIONS */}
 
-        {/* LISTINGS */}
+              <div className="flex gap-3">
 
-        {!error && listings && listings.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <span className="text-emerald-700 font-bold">
+                  ✓
+                </span>
 
-            {listings.map((listing) => (
-              <article
-                key={listing.id}
-                className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm"
-              >
+                <p>
+                  Identify Annadhanam centres, Jeeva Samadhis,
+                  temples and meditation centres.
+                </p>
 
-                {/* NAME */}
+              </div>
 
-                <div className="mb-4">
+              {/* IDENTIFY OTHER SERVICES */}
 
-                  <div className="flex items-start justify-between gap-4">
+              <div className="flex gap-3">
 
-                    <h2 className="text-xl font-bold text-gray-900">
-                      {listing.name}
-                    </h2>
+                <span className="text-emerald-700 font-bold">
+                  ✓
+                </span>
 
-                    <span className="shrink-0 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full">
-                      Volunteer
-                    </span>
+                <p>
+                  Identify affordable stays, medical services
+                  and community service organisations.
+                </p>
 
-                  </div>
+              </div>
 
-                  {listing.description && (
-                    <p className="text-gray-600 mt-3">
-                      {listing.description}
-                    </p>
-                  )}
+              {/* VERIFY LISTINGS */}
 
-                </div>
+              <div className="flex gap-3">
 
-                {/* TIMING */}
+                <span className="text-emerald-700 font-bold">
+                  ✓
+                </span>
 
-                {listing.timing && (
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-5">
+                <p>
+                  Help verify information submitted by members
+                  of the public.
+                </p>
 
-                    <p className="text-sm font-semibold text-emerald-800 mb-1">
-                      🕐 Timing / Schedule
-                    </p>
+              </div>
 
-                    <p className="text-gray-800 whitespace-pre-line">
-                      {listing.timing}
-                    </p>
+              {/* REPORT OUTDATED INFORMATION */}
 
-                  </div>
-                )}
+              <div className="flex gap-3">
 
-                {/* LOCATION */}
+                <span className="text-emerald-700 font-bold">
+                  ✓
+                </span>
 
-                <div className="border-t border-gray-100 pt-4">
+                <p>
+                  Report outdated timings, locations or contact
+                  information so listings can remain accurate.
+                </p>
 
-                  <h3 className="font-semibold text-gray-900 mb-3">
-                    Location
-                  </h3>
+              </div>
 
-                  <div className="space-y-2 text-sm text-gray-700">
+            </div>
 
-                    <p>
-                      <span className="font-semibold">State:</span>{' '}
-                      {listing.states?.name || '-'}
-                    </p>
+            {/* =================================================
+                VOLUNTEER REGISTRATION - COMING NEXT
+            ================================================= */}
 
-                    <p>
-                      <span className="font-semibold">District:</span>{' '}
-                      {listing.districts?.name || '-'}
-                    </p>
+            <div className="mt-7 bg-emerald-50 border border-emerald-100 rounded-xl p-4">
 
-                    {listing.taluk && (
-                      <p>
-                        <span className="font-semibold">
-                          Taluk / Sub-District:
-                        </span>{' '}
-                        {listing.taluk}
-                      </p>
-                    )}
+              <p className="text-sm text-emerald-900 font-medium">
+                Volunteer registration will be available soon.
+              </p>
 
-                    {listing.panchayat && (
-                      <p>
-                        <span className="font-semibold">
-                          Panchayat / Municipality:
-                        </span>{' '}
-                        {listing.panchayat}
-                      </p>
-                    )}
+              <p className="text-sm text-emerald-800 mt-1">
+                Volunteers will assist with identification and
+                verification. Final listing approval will remain
+                with the Vallalar Jeevakarunyam administrator.
+              </p>
 
-                    {listing.village && (
-                      <p>
-                        <span className="font-semibold">
-                          Village / Town:
-                        </span>{' '}
-                        {listing.village}
-                      </p>
-                    )}
+            </div>
 
-                  </div>
-                </div>
+          </section>
 
-                {/* CONTACT */}
+          {/* =================================================
+              JOIN COMMUNITY SERVICE
+          ================================================= */}
 
-                <div className="border-t border-gray-100 mt-5 pt-4">
+          <section className="bg-white border border-emerald-200 rounded-2xl p-7 shadow-sm">
 
-                  <h3 className="font-semibold text-gray-900 mb-3">
-                    Contact
-                  </h3>
+            <div className="text-4xl mb-4">
+              🌱
+            </div>
 
-                  <div className="space-y-2 text-sm text-gray-700">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Join Community Service
+            </h2>
 
-                    {listing.contact_person && (
-                      <p>
-                        <span className="font-semibold">
-                          Contact Person:
-                        </span>{' '}
-                        {listing.contact_person}
-                      </p>
-                    )}
-
-                    {listing.phone && (
-                      <p>
-                        <span className="font-semibold">Phone:</span>{' '}
-                        <a
-                          href={`tel:${listing.phone}`}
-                          className="text-emerald-700 hover:underline"
-                        >
-                          {listing.phone}
-                        </a>
-                      </p>
-                    )}
-
-                    {listing.whatsapp && (
-                      <p>
-                        <span className="font-semibold">WhatsApp:</span>{' '}
-                        {listing.whatsapp}
-                      </p>
-                    )}
-
-                    {listing.email && (
-                      <p>
-                        <span className="font-semibold">Email:</span>{' '}
-                        <a
-                          href={`mailto:${listing.email}`}
-                          className="text-emerald-700 hover:underline"
-                        >
-                          {listing.email}
-                        </a>
-                      </p>
-                    )}
-
-                  </div>
-                </div>
-
-                {/* LINKS */}
-
-                {(listing.google_maps_url || listing.website) && (
-                  <div className="border-t border-gray-100 mt-5 pt-5 flex flex-wrap gap-3">
-
-                    {listing.google_maps_url && (
-                      <a
-                        href={listing.google_maps_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex px-4 py-2 bg-emerald-700 text-white text-sm font-semibold rounded-lg hover:bg-emerald-800 transition"
-                      >
-                        📍 Open Map
-                      </a>
-                    )}
-
-                    {listing.website && (
-                      <a
-                        href={listing.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition"
-                      >
-                        Visit Website
-                      </a>
-                    )}
-
-                  </div>
-                )}
-
-              </article>
-            ))}
-
-          </div>
-        )}
-
-        {!error && listings && listings.length > 0 && (
-          <div className="mt-10 text-center">
-
-            <p className="text-gray-600">
-              Know another volunteer opportunity?
+            <p className="text-gray-600 mt-3 leading-7">
+              Find organisations and groups already carrying out
+              social, environmental and compassionate service.
+              Contact them directly and participate in their
+              activities.
             </p>
 
-            <Link
-              href="/submit"
-              className="inline-flex mt-3 px-5 py-2.5 border border-emerald-700 text-emerald-700 font-semibold rounded-lg hover:bg-emerald-50 transition"
+            {/* SERVICE TYPES */}
+
+            <div className="mt-6 flex flex-wrap gap-2">
+
+              {[
+                'Ulavara Pani',
+                'Water Body Restoration',
+                'Tree Planting',
+                'Environmental Conservation',
+                'Temple Service',
+                'Heritage Conservation',
+                'Food Service',
+                'Animal Welfare',
+                'Social Service',
+              ].map((service) => (
+
+                <span
+                  key={service}
+                  className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-full text-sm text-gray-700"
+                >
+                  {service}
+                </span>
+
+              ))}
+
+            </div>
+
+            {/* FIND COMMUNITY SERVICES */}
+
+            <a
+              href="#community-services"
+              className="inline-flex mt-7 px-5 py-2.5 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 transition"
             >
-              Submit a Listing
-            </Link>
+              Find Community Services ↓
+            </a>
+
+          </section>
+
+        </div>
+
+        {/* =================================================
+            COMMUNITY SERVICE DIRECTORY
+        ================================================= */}
+
+        <section
+          id="community-services"
+          className="scroll-mt-24"
+        >
+
+          {/* DIRECTORY HEADER */}
+
+          <div className="mb-7">
+
+            <p className="text-sm font-semibold text-emerald-700 mb-2">
+              Community Directory
+            </p>
+
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+              Community Service Groups
+            </h2>
+
+            <p className="text-gray-600 mt-3 max-w-3xl leading-7">
+              Discover approved organisations, groups and service
+              initiatives. Contact them directly to learn about
+              upcoming activities and opportunities to participate.
+            </p>
 
           </div>
-        )}
+
+          {/* =================================================
+              ERROR
+          ================================================= */}
+
+          {error && (
+
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-5">
+              Unable to load Community Service listings.
+            </div>
+
+          )}
+
+          {/* =================================================
+              EMPTY STATE
+          ================================================= */}
+
+          {!error &&
+            (!listings || listings.length === 0) && (
+
+              <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+
+                <h3 className="text-xl font-semibold text-gray-900">
+                  No approved Community Service groups yet
+                </h3>
+
+                <p className="text-gray-600 mt-2 max-w-xl mx-auto">
+                  Know an organisation or group doing Ulavara Pani,
+                  environmental conservation, water-body restoration
+                  or another form of community service?
+                </p>
+
+                <Link
+                  href="/submit"
+                  className="inline-flex mt-5 px-5 py-2.5 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 transition"
+                >
+                  ＋ Submit a Community Service Group
+                </Link>
+
+              </div>
+
+            )}
+
+          {/* =================================================
+              AVAILABLE SERVICE TYPES
+          ================================================= */}
+
+          {!error &&
+            listings &&
+            listings.length > 0 && (
+
+              <div className="mb-6 flex flex-wrap gap-2">
+
+                {Array.from(
+                  new Set(
+                    listings
+                      .map(
+                        (listing) =>
+                          listing.service_type
+                      )
+                      .filter(
+                        (
+                          value
+                        ): value is string =>
+                          Boolean(value)
+                      )
+                  )
+                ).map((serviceType) => (
+
+                  <span
+                    key={serviceType}
+                    className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full text-sm font-medium"
+                  >
+                    {getServiceTypeLabel(
+                      serviceType
+                    )}
+                  </span>
+
+                ))}
+
+              </div>
+
+            )}
+
+          {/* =================================================
+              SEARCH + SERVICE TYPE + STATE + DISTRICT
+              GRID / LIST VIEW
+          ================================================= */}
+
+          {!error &&
+            listings &&
+            listings.length > 0 && (
+
+              <ListingsExplorer
+                listings={listings}
+                badgeLabel="Community Service"
+                showServiceTypeFilter={true}
+              />
+
+            )}
+
+          {/* =================================================
+              SUBMIT ANOTHER COMMUNITY SERVICE GROUP
+          ================================================= */}
+
+          {!error &&
+            listings &&
+            listings.length > 0 && (
+
+              <div className="mt-10 text-center bg-white border border-gray-200 rounded-xl p-7">
+
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Know another community service group?
+                </h3>
+
+                <p className="text-gray-600 mt-2">
+                  Help others discover organisations doing
+                  meaningful service in their area.
+                </p>
+
+                <Link
+                  href="/submit"
+                  className="inline-flex mt-4 px-5 py-2.5 border border-emerald-700 text-emerald-700 font-semibold rounded-lg hover:bg-emerald-50 transition"
+                >
+                  ＋ Submit a Listing
+                </Link>
+
+              </div>
+
+            )}
+
+        </section>
 
       </div>
+
     </main>
   )
 }

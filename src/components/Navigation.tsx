@@ -19,67 +19,78 @@ export default function Navigation() {
       href: '/jeeva-samadhi',
     },
     {
-      name: 'Temples',
+      name: 'Temples & Meditation Centres',
       href: '/temple',
     },
     {
-      name: 'Stay',
+      name: 'Affordable Stays',
       href: '/stay',
     },
     {
-      name: 'Volunteer',
+      name: 'Volunteer & Community Service',
       href: '/volunteer',
+    },
+    {
+      name: 'Medical Services',
+      href: '/medical',
     },
   ]
 
   return (
-    <nav className="sticky top-0 z-50 bg-white shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center h-16">
 
-        <div className="flex justify-between items-center h-16">
+          {/* BRAND - LEFT CORNER */}
 
-          {/* LOGO */}
-
-          <div className="flex-shrink-0">
-
+          <div className="flex-shrink-0 mr-10">
             <Link
               href="/"
-              className="text-xl font-bold text-emerald-700"
+              className="text-lg font-bold text-emerald-700 whitespace-nowrap"
             >
               Vallalar Jeevakarunyam
             </Link>
-
           </div>
 
           {/* DESKTOP NAVIGATION */}
 
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden lg:flex flex-1 items-center justify-center gap-5">
 
             {navItems.map((item) => (
-
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-emerald-700 font-medium transition-colors"
+                className="text-gray-700 hover:text-emerald-700 font-medium transition-colors text-sm whitespace-nowrap"
               >
                 {item.name}
               </Link>
-
             ))}
+
+          </div>
+
+          {/* ADMIN LOGIN */}
+
+          <div className="hidden lg:flex flex-shrink-0 ml-8">
+
+            <Link
+              href="/admin"
+              className="inline-flex items-center justify-center px-5 py-2 border border-emerald-700 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50 transition"
+            >
+              Admin Login
+            </Link>
 
           </div>
 
           {/* MOBILE MENU BUTTON */}
 
-          <div className="md:hidden">
+          <div className="ml-auto lg:hidden">
 
             <button
               type="button"
               className="text-gray-700 hover:text-emerald-700"
               aria-label="Open navigation menu"
             >
-
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -93,7 +104,6 @@ export default function Navigation() {
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
-
             </button>
 
           </div>
@@ -101,7 +111,6 @@ export default function Navigation() {
         </div>
 
       </div>
-
     </nav>
   )
 }

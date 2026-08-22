@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import ListingsExplorer from '@/components/listings/ListingsExplorer'
 
-export default async function TemplePage() {
+export default async function MedicalPage() {
   const supabase = await createClient()
 
-  // Only approved Temple / Meditation Centre listings are shown publicly
+  // Only approved Affordable Medical Service listings are shown publicly
   const { data: listings, error } = await supabase
     .from('listings')
     .select(`
@@ -17,7 +17,7 @@ export default async function TemplePage() {
         name
       )
     `)
-    .eq('listing_type', 'temple')
+    .eq('listing_type', 'medical')
     .eq('status', 'approved')
     .order('created_at', {
       ascending: false,
@@ -37,13 +37,30 @@ export default async function TemplePage() {
           </p>
 
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Temples & Meditation Centres
+            Affordable Medical Services
           </h1>
 
           <p className="text-gray-600 mt-3 max-w-2xl">
-            Discover approved temples and meditation centres
-            supporting spiritual practice, compassion and service
-            to living beings.
+            Find approved free and affordable medical services,
+            charitable healthcare facilities and community health
+            initiatives.
+          </p>
+
+        </div>
+
+        {/* MEDICAL INFORMATION NOTICE */}
+
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8">
+
+          <p className="font-semibold text-gray-900">
+            Medical Information Notice
+          </p>
+
+          <p className="text-sm text-gray-700 mt-2 leading-6">
+            Vallalar Jeevakarunyam provides listing information only.
+            Please contact the respective medical service provider
+            directly to confirm services, eligibility, charges,
+            appointments and availability.
           </p>
 
         </div>
@@ -52,7 +69,7 @@ export default async function TemplePage() {
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-5">
-            Unable to load Temples & Meditation Centres.
+            Unable to load Affordable Medical Services.
           </div>
         )}
 
@@ -64,12 +81,12 @@ export default async function TemplePage() {
             <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
 
               <h2 className="text-xl font-semibold text-gray-900">
-                No approved Temples & Meditation Centres yet
+                No approved Affordable Medical Services yet
               </h2>
 
               <p className="text-gray-600 mt-2">
-                Know a temple or meditation centre that should be
-                listed? You can submit the details for review.
+                Know a free or affordable medical service?
+                Submit the details for review.
               </p>
 
               <Link
@@ -83,7 +100,7 @@ export default async function TemplePage() {
 
           )}
 
-        {/* SEARCH + FILTERS + LISTINGS */}
+        {/* SEARCH + FILTERS + GRID/LIST */}
 
         {!error &&
           listings &&
@@ -91,7 +108,7 @@ export default async function TemplePage() {
 
             <ListingsExplorer
               listings={listings}
-              badgeLabel="Temple / Meditation Centre"
+              badgeLabel="Medical Service"
             />
 
           )}
@@ -105,7 +122,7 @@ export default async function TemplePage() {
             <div className="mt-10 text-center">
 
               <p className="text-gray-600">
-                Know another temple or meditation centre?
+                Know another free or affordable medical service?
               </p>
 
               <Link

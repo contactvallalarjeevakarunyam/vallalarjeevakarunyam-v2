@@ -5,11 +5,71 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import LogoutButton from '@/components/admin/LogoutButton'
 
+// =====================================================
+// TYPES
+// =====================================================
+
 type AdminPageProps = {
   searchParams: Promise<{
     status?: string
   }>
 }
+
+// =====================================================
+// DISPLAY LABELS
+// =====================================================
+
+function getListingTypeLabel(type: string | null) {
+  const labels: Record<string, string> = {
+    annadhanam: 'Annadhanam',
+    jeeva_samadhi: 'Jeeva Samadhi',
+    temple: 'Temples & Meditation Centres',
+    stay: 'Affordable Stays',
+    medical: 'Affordable Medical Services',
+    community_service: 'Community Service',
+
+    // Keeps old records readable if any still exist
+    volunteer: 'Volunteer Services',
+  }
+
+  return type ? labels[type] || type : '-'
+}
+
+function getServiceTypeLabel(type: string | null) {
+  const labels: Record<string, string> = {
+    ulavara_pani: 'Ulavara Pani',
+    water_body_restoration: 'Water Body Restoration',
+    tree_planting: 'Tree Planting',
+    environmental_conservation: 'Environmental Conservation',
+    temple_service: 'Temple Service',
+    heritage_conservation: 'Heritage Conservation',
+    food_service: 'Annadhanam / Food Service',
+    animal_welfare: 'Animal Welfare',
+    community_social_service: 'Community / Social Service',
+    other: 'Other',
+  }
+
+  return type ? labels[type] || type : '-'
+}
+
+// =====================================================
+// REVALIDATE PUBLIC PAGES
+// =====================================================
+
+function revalidateListingPages() {
+  revalidatePath('/admin')
+  revalidatePath('/')
+  revalidatePath('/annadhanam')
+  revalidatePath('/jeeva-samadhi')
+  revalidatePath('/temple')
+  revalidatePath('/stay')
+  revalidatePath('/medical')
+  revalidatePath('/volunteer')
+}
+
+// =====================================================
+// PAGE
+// =====================================================
 
 export default async function AdminPage({
   searchParams,
@@ -41,6 +101,7 @@ export default async function AdminPage({
   if (!admin) {
     return (
       <main className="max-w-6xl mx-auto p-6">
+
         <h1 className="text-3xl font-bold mb-4">
           Access Denied
         </h1>
@@ -48,6 +109,7 @@ export default async function AdminPage({
         <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
           You do not have permission to access the admin area.
         </div>
+
       </main>
     )
   }
@@ -122,8 +184,7 @@ export default async function AdminPage({
       return
     }
 
-    revalidatePath('/admin')
-    revalidatePath('/annadhanam')
+    revalidateListingPages()
   }
 
   // =====================================================
@@ -178,8 +239,7 @@ export default async function AdminPage({
       return
     }
 
-    revalidatePath('/admin')
-    revalidatePath('/annadhanam')
+    revalidateListingPages()
   }
 
   // =====================================================
@@ -191,6 +251,7 @@ export default async function AdminPage({
     approvedResult,
     rejectedResult,
   ] = await Promise.all([
+
     supabase
       .from('listings')
       .select('*', {
@@ -214,6 +275,7 @@ export default async function AdminPage({
         head: true,
       })
       .eq('status', 'rejected'),
+
   ])
 
   const pendingCount =
@@ -426,9 +488,33 @@ export default async function AdminPage({
                     {listing.name}
                   </h3>
 
+                  {/* HUMAN READABLE LISTING TYPE */}
+
                   <p className="text-sm text-emerald-700 font-medium mt-1">
-                    {listing.listing_type}
+                    {getListingTypeLabel(
+                      listing.listing_type
+                    )}
                   </p>
+
+                  {/* COMMUNITY SERVICE TYPE */}
+
+                  {listing.listing_type ===
+                    'community_service' &&
+                    listing.service_type && (
+
+                    <p className="text-sm text-gray-600 mt-1">
+
+                      <span className="font-semibold">
+                        Service Type:
+                      </span>{' '}
+
+                      {getServiceTypeLabel(
+                        listing.service_type
+                      )}
+
+                    </p>
+
+                  )}
 
                 </div>
 
@@ -504,8 +590,6 @@ export default async function AdminPage({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
 
-                  {/* STATE */}
-
                   <p>
                     <span className="font-semibold">
                       State:
@@ -513,8 +597,6 @@ export default async function AdminPage({
 
                     {listing.states?.name || '-'}
                   </p>
-
-                  {/* DISTRICT */}
 
                   <p>
                     <span className="font-semibold">
@@ -524,8 +606,6 @@ export default async function AdminPage({
                     {listing.districts?.name || '-'}
                   </p>
 
-                  {/* TALUK */}
-
                   <p>
                     <span className="font-semibold">
                       Taluk / Sub-District:
@@ -534,8 +614,6 @@ export default async function AdminPage({
                     {listing.taluk || '-'}
                   </p>
 
-                  {/* PANCHAYAT */}
-
                   <p>
                     <span className="font-semibold">
                       Panchayat / Municipality:
@@ -543,8 +621,6 @@ export default async function AdminPage({
 
                     {listing.panchayat || '-'}
                   </p>
-
-                  {/* VILLAGE */}
 
                   <p>
                     <span className="font-semibold">
@@ -589,8 +665,6 @@ export default async function AdminPage({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
 
-                  {/* CONTACT */}
-
                   <p>
                     <span className="font-semibold">
                       Contact:
@@ -598,8 +672,6 @@ export default async function AdminPage({
 
                     {listing.contact_person || '-'}
                   </p>
-
-                  {/* PHONE */}
 
                   <p>
                     <span className="font-semibold">
@@ -609,8 +681,6 @@ export default async function AdminPage({
                     {listing.phone || '-'}
                   </p>
 
-                  {/* EMAIL */}
-
                   <p>
                     <span className="font-semibold">
                       Email:
@@ -619,8 +689,6 @@ export default async function AdminPage({
                     {listing.email || '-'}
                   </p>
 
-                  {/* WHATSAPP */}
-
                   <p>
                     <span className="font-semibold">
                       WhatsApp:
@@ -628,8 +696,6 @@ export default async function AdminPage({
 
                     {listing.whatsapp || '-'}
                   </p>
-
-                  {/* WEBSITE */}
 
                   {listing.website && (
 

@@ -1,0 +1,562 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import Link from 'next/link'
+
+type LocationName = {
+  name: string
+} | null
+
+export type HomePublicListing = {
+  id: string | number
+  listing_type: string
+  name: string
+  description?: string | null
+  timing?: string | null
+
+  taluk?: string | null
+  panchayat?: string | null
+  village?: string | null
+
+  contact_person?: string | null
+  phone?: string | null
+  whatsapp?: string | null
+  email?: string | null
+
+  google_maps_url?: string | null
+  website?: string | null
+
+  states?: LocationName
+  districts?: LocationName
+}
+
+type Props = {
+  listings: HomePublicListing[]
+}
+
+const categoryDetails: Record<
+  string,
+  {
+    label: string
+    icon: string
+    href: string
+  }
+> = {
+  annadhanam: {
+    label: 'Annadhanam',
+    icon: '🍛',
+    href: '/annadhanam',
+  },
+
+  jeeva_samadhi: {
+    label: 'Jeeva Samadhi',
+    icon: '🕉️',
+    href: '/jeeva-samadhi',
+  },
+
+  temple: {
+    label: 'Temples & Meditation Centres',
+    icon: '🛕',
+    href: '/temple',
+  },
+
+  stay: {
+    label: 'Affordable Stays',
+    icon: '🏠',
+    href: '/stay',
+  },
+
+  volunteer: {
+    label: 'Volunteer Services',
+    icon: '🤝',
+    href: '/volunteer',
+  },
+
+  medical: {
+    label: 'Affordable Medical Services',
+    icon: '🏥',
+    href: '/medical',
+  },
+}
+
+export default function HomeListingsExplorer({
+  listings,
+}: Props) {
+  const [search, setSearch] = useState('')
+  const [category, setCategory] = useState('')
+  const [selectedState, setSelectedState] = useState('')
+  const [selectedDistrict, setSelectedDistrict] = useState('')
+
+  const hasFilters =
+    search.trim() !== '' ||
+    category !== '' ||
+    selectedState !== '' ||
+    selectedDistrict !== ''
+
+  // STATES
+
+  const states = useMemo(() => {
+    return Array.from(
+      new Set(
+        listings
+          .filter((listing) => {
+            if (!category) return true
+            return listing.listing_type === category
+          })
+          .map((listing) => listing.states?.name)
+          .filter((name): name is string => Boolean(name))
+      )
+    ).sort((a, b) => a.localeCompare(b))
+  }, [listings, category])
+
+  // DISTRICTS
+
+  const districts = useMemo(() => {
+    return Array.from(
+      new Set(
+        listings
+          .filter((listing) => {
+            const matchesCategory =
+              !category ||
+              listing.listing_type === category
+
+            const matchesState =
+              !selectedState ||
+              listing.states?.name === selectedState
+
+            return matchesCategory && matchesState
+          })
+          .map((listing) => listing.districts?.name)
+          .filter((name): name is string => Boolean(name))
+      )
+    ).sort((a, b) => a.localeCompare(b))
+  }, [listings, category, selectedState])
+
+  // RESULTS
+
+  const filteredListings = useMemo(() => {
+    if (!hasFilters) {
+      return []
+    }
+
+    const searchText = search.trim().toLowerCase()
+
+    return listings.filter((listing) => {
+      const categoryInfo =
+        categoryDetails[listing.listing_type]
+
+      const searchableText = [
+        listing.name,
+        listing.description,
+        categoryInfo?.label,
+        listing.states?.name,
+        listing.districts?.name,
+        listing.taluk,
+        listing.panchayat,
+        listing.village,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      const matchesSearch =
+        !searchText ||
+        searchableText.includes(searchText)
+
+      const matchesCategory =
+        !category ||
+        listing.listing_type === category
+
+      const matchesState =
+        !selectedState ||
+        listing.states?.name === selectedState
+
+      const matchesDistrict =
+        !selectedDistrict ||
+        listing.districts?.name === selectedDistrict
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesState &&
+        matchesDistrict
+      )
+    })
+  }, [
+    listings,
+    search,
+    category,
+    selectedState,
+    selectedDistrict,
+    hasFilters,
+  ])
+
+  function handleCategoryChange(value: string) {
+    setCategory(value)
+    setSelectedState('')
+    setSelectedDistrict('')
+  }
+
+  function handleStateChange(value: string) {
+    setSelectedState(value)
+    setSelectedDistrict('')
+  }
+
+  function clearFilters() {
+    setSearch('')
+    setCategory('')
+    setSelectedState('')
+    setSelectedDistrict('')
+  }
+
+  return (
+    <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+
+      <div className="max-w-7xl mx-auto">
+
+        {/* HEADING */}
+
+        <div className="text-center mb-8">
+
+          <p className="text-sm font-semibold text-emerald-700 mb-2">
+            Search Our Listings
+          </p>
+
+          <h2 className="text-3xl font-bold text-gray-900">
+            Find Services Near You
+          </h2>
+
+          <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
+            Search across Annadhanam, Jeeva Samadhi,
+            Temples & Meditation Centres, Affordable Stays,
+            Volunteer Services and Affordable Medical Services.
+          </p>
+
+        </div>
+
+        {/* SEARCH PANEL */}
+
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 md:p-6">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            {/* SEARCH */}
+
+            <div>
+
+              <label
+                htmlFor="home-search"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Search
+              </label>
+
+              <div className="relative">
+
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  🔎
+                </span>
+
+                <input
+                  id="home-search"
+                  type="text"
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(event.target.value)
+                  }
+                  placeholder="Name or location..."
+                  className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2.5 text-gray-900 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+
+              </div>
+
+            </div>
+
+            {/* CATEGORY */}
+
+            <div>
+
+              <label
+                htmlFor="home-category"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Category
+              </label>
+
+              <select
+                id="home-category"
+                value={category}
+                onChange={(event) =>
+                  handleCategoryChange(event.target.value)
+                }
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-gray-900 bg-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              >
+                <option value="">
+                  All Categories
+                </option>
+
+                {Object.entries(categoryDetails).map(
+                  ([value, details]) => (
+                    <option
+                      key={value}
+                      value={value}
+                    >
+                      {details.label}
+                    </option>
+                  )
+                )}
+
+              </select>
+
+            </div>
+
+            {/* STATE */}
+
+            <div>
+
+              <label
+                htmlFor="home-state"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                State
+              </label>
+
+              <select
+                id="home-state"
+                value={selectedState}
+                onChange={(event) =>
+                  handleStateChange(event.target.value)
+                }
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-gray-900 bg-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              >
+                <option value="">
+                  All States
+                </option>
+
+                {states.map((state) => (
+                  <option
+                    key={state}
+                    value={state}
+                  >
+                    {state}
+                  </option>
+                ))}
+
+              </select>
+
+            </div>
+
+            {/* DISTRICT */}
+
+            <div>
+
+              <label
+                htmlFor="home-district"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                District
+              </label>
+
+              <select
+                id="home-district"
+                value={selectedDistrict}
+                onChange={(event) =>
+                  setSelectedDistrict(event.target.value)
+                }
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-gray-900 bg-white outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              >
+                <option value="">
+                  All Districts
+                </option>
+
+                {districts.map((district) => (
+                  <option
+                    key={district}
+                    value={district}
+                  >
+                    {district}
+                  </option>
+                ))}
+
+              </select>
+
+            </div>
+
+          </div>
+
+          {/* DEFAULT MESSAGE */}
+
+          {!hasFilters && (
+
+            <div className="mt-6 border-t border-gray-100 pt-6 text-center">
+
+              <p className="text-gray-600">
+                Search by service name or location, or
+                select a category to find services.
+              </p>
+
+            </div>
+
+          )}
+
+          {/* RESULT COUNT */}
+
+          {hasFilters && (
+
+            <div className="mt-6 border-t border-gray-100 pt-5 flex flex-wrap items-center justify-between gap-3">
+
+              <p className="text-sm text-gray-600">
+                Found{' '}
+                <span className="font-semibold text-gray-900">
+                  {filteredListings.length}
+                </span>{' '}
+                {filteredListings.length === 1
+                  ? 'listing'
+                  : 'listings'}
+              </p>
+
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-sm font-semibold text-emerald-700 hover:text-emerald-800"
+              >
+                Clear Search & Filters
+              </button>
+
+            </div>
+
+          )}
+
+        </div>
+
+        {/* NO RESULTS */}
+
+        {hasFilters &&
+          filteredListings.length === 0 && (
+
+            <div className="mt-6 bg-white border border-gray-200 rounded-xl p-8 text-center">
+
+              <h3 className="text-xl font-semibold text-gray-900">
+                No matching services found
+              </h3>
+
+              <p className="text-gray-600 mt-2">
+                Try another search term, category or
+                location.
+              </p>
+
+            </div>
+
+          )}
+
+        {/* RESULTS */}
+
+        {hasFilters &&
+          filteredListings.length > 0 && (
+
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+              {filteredListings.map((listing) => {
+                const details =
+                  categoryDetails[listing.listing_type]
+
+                return (
+                  <article
+                    key={listing.id}
+                    className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
+                  >
+
+                    <div className="flex items-start justify-between gap-3">
+
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {listing.name}
+                      </h3>
+
+                      {details && (
+                        <span className="text-xl shrink-0">
+                          {details.icon}
+                        </span>
+                      )}
+
+                    </div>
+
+                    {details && (
+                      <p className="text-xs font-semibold text-emerald-700 mt-2">
+                        {details.label}
+                      </p>
+                    )}
+
+                    {listing.description && (
+                      <p className="text-sm text-gray-600 mt-3 line-clamp-3">
+                        {listing.description}
+                      </p>
+                    )}
+
+                    <div className="mt-4 text-sm text-gray-700 space-y-1">
+
+                      {listing.states?.name && (
+                        <p>
+                          <span className="font-semibold">
+                            State:
+                          </span>{' '}
+                          {listing.states.name}
+                        </p>
+                      )}
+
+                      {listing.districts?.name && (
+                        <p>
+                          <span className="font-semibold">
+                            District:
+                          </span>{' '}
+                          {listing.districts.name}
+                        </p>
+                      )}
+
+                      {listing.village && (
+                        <p>
+                          <span className="font-semibold">
+                            Place:
+                          </span>{' '}
+                          {listing.village}
+                        </p>
+                      )}
+
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap gap-2">
+
+                      {details && (
+                        <Link
+                          href={details.href}
+                          className="inline-flex px-4 py-2 bg-emerald-700 text-white text-sm font-semibold rounded-lg hover:bg-emerald-800 transition"
+                        >
+                          View Category
+                        </Link>
+                      )}
+
+                      {listing.google_maps_url && (
+                        <a
+                          href={listing.google_maps_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition"
+                        >
+                          📍 Map
+                        </a>
+                      )}
+
+                    </div>
+
+                  </article>
+                )
+              })}
+
+            </div>
+
+          )}
+
+      </div>
+
+    </section>
+  )
+}

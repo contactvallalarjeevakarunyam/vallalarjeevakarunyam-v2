@@ -5,6 +5,7 @@ interface FeatureCardProps {
   description: string
   icon: React.ReactNode
   href?: string
+  actionLabel?: string
 }
 
 export default function FeatureCard({
@@ -12,6 +13,7 @@ export default function FeatureCard({
   description,
   icon,
   href,
+  actionLabel = 'View Listings',
 }: FeatureCardProps) {
   const content = (
     <>
@@ -30,7 +32,7 @@ export default function FeatureCard({
       {href && (
         <div className="mt-5 text-center">
           <span className="text-emerald-700 font-semibold">
-            View Listings →
+            {actionLabel} →
           </span>
         </div>
       )}
