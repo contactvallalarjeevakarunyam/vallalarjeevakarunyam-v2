@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import ListingsExplorer from '@/components/listings/ListingsExplorer'
+import TempleListingsExplorer from '@/components/listings/TempleListingsExplorer'
 
 export const metadata: Metadata = {
   title: 'Temples & Meditation Centres',
@@ -22,7 +22,7 @@ export default async function TemplePage() {
       </div>
       {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-5">Unable to load Temples & Meditation Centres. Please try again later.</div>}
       {!error && (!listings || listings.length === 0) && <div className="bg-white border border-gray-200 rounded-xl p-8 text-center"><h2 className="text-xl font-semibold text-gray-900">No approved Temples & Meditation Centres yet</h2><p className="text-gray-600 mt-2">Know a temple or meditation centre that should be listed? Submit the details for review.</p><Link href="/submit" className="inline-flex mt-5 px-5 py-2.5 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 transition">Submit a Listing</Link></div>}
-      {!error && listings && listings.length > 0 && <ListingsExplorer listings={listings} badgeLabel="Temple / Meditation Centre" />}
+      {!error && listings && listings.length > 0 && <TempleListingsExplorer listings={listings} />}
       {!error && listings && listings.length > 0 && <div className="mt-10 bg-emerald-50 border border-emerald-100 rounded-xl p-6 text-center"><p className="font-semibold text-gray-900">Know another temple or meditation centre?</p><p className="text-sm text-gray-600 mt-1">Help others by submitting accurate public information for review.</p><Link href="/submit" className="inline-flex mt-4 px-5 py-2.5 border border-emerald-700 text-emerald-700 font-semibold rounded-lg hover:bg-white transition">Submit a Listing</Link></div>}
     </div>
   </main>
