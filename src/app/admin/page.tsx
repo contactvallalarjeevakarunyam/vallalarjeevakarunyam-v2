@@ -14,7 +14,7 @@ function getServiceTypeLabel(type: string | null) {
   const labels: Record<string,string> = { ulavara_pani:'Ulavara Pani', water_body_restoration:'Water Body Restoration', tree_planting:'Tree Planting', environmental_conservation:'Environmental Conservation', temple_service:'Temple Service', heritage_conservation:'Heritage Conservation', food_service:'Annadhanam / Food Service', animal_welfare:'Animal Welfare', community_social_service:'Community / Social Service', other:'Other' }
   return type ? labels[type] || type : '-'
 }
-function revalidateListingPages(){['/admin','/','/annadhanam','/jeeva-samadhi','/temple','/stay','/medical','/volunteer','/map'].forEach(revalidatePath)}
+function revalidateListingPages(){['/admin','/','/annadhanam','/jeeva-samadhi','/temple','/stay','/medical','/volunteer','/map'].forEach((path)=>revalidatePath(path))}
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const supabase = await createClient()
