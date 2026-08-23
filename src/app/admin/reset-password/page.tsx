@@ -20,8 +20,25 @@ export default function ResetPasswordPage() {
     const supabase = createClient()
     let mounted = true
 
+    const markReadyFromSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!mounted) return false
+      if (session) {
+        setRecoveryReady(true)
+        setError('')
+        setChecking(false)
+        return true
+      }
+      return false
+    }
+
     const prepareRecovery = async () => {
       try {
+        // Supabase's browser client may already have consumed the PKCE code and
+        // persisted the recovery session before this effect runs. Always trust
+        // an existing session first instead of trying to exchange the code twice.
+        if (await markReadyFromSession()) return
+
         const url = new URL(window.location.href)
         const code = url.searchParams.get('code')
         const tokenHash = url.searchParams.get('token_hash')
@@ -29,36 +46,58 @@ export default function ResetPasswordPage() {
 
         if (code) {
           const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-          if (exchangeError) throw exchangeError
+          if (exchangeError) {
+            // A PKCE code is single-use. If another client path just consumed it,
+            // re-check the persisted session before treating the link as invalid.
+            if (await markReadyFromSession()) return
+            throw exchangeError
+          }
           window.history.replaceState({}, '', '/admin/reset-password')
         } else if (tokenHash && type === 'recovery') {
           const { error: verifyError } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: 'recovery',
           })
-          if (verifyError) throw verifyError
+          if (verifyError) {
+            if (await markReadyFromSession()) return
+            throw verifyError
+          }
           window.history.replaceState({}, '', '/admin/reset-password')
         }
 
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!mounted) return
+        if (await markReadyFromSession()) return
 
-        if (session) {
-          setRecoveryReady(true)
-          setError('')
-        } else {
+        if (mounted) {
           setError('Reset session is missing or the link has expired. Please request a new password reset email.')
+          setChecking(false)
         }
       } catch (err) {
         console.error('Password recovery session error:', err)
-        if (mounted) setError('This reset link is invalid or has expired. Please request a new password reset email.')
-      } finally {
-        if (mounted) setChecking(false)
+        if (mounted) {
+          setError('This reset link is invalid or has expired. Please request a new password reset email.')
+          setChecking(false)
+        }
       }
     }
 
+    // Listen for PASSWORD_RECOVERY/SIGNED_IN as a second source of truth. This
+    // covers the small timing window where Supabase finishes restoring the
+    // recovery session immediately after the initial getSession() call.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted || !session) return
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        setRecoveryReady(true)
+        setError('')
+        setChecking(false)
+      }
+    })
+
     prepareRecovery()
-    return () => { mounted = false }
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
