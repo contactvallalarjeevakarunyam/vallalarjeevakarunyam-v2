@@ -1,6 +1,5 @@
 import Hero from '@/components/Hero'
 import FeatureCard from '@/components/FeatureCard'
-import Footer from '@/components/Footer'
 import HomeListingsExplorer from '@/components/listings/HomeListingsExplorer'
 import { createClient } from '@/lib/supabase/server'
 
@@ -42,7 +41,6 @@ export default async function Home() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   )
 }
