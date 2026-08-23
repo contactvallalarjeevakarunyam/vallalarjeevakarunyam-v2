@@ -4,7 +4,10 @@ import { redirect } from 'next/navigation'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+// Admin invitation emails must always point to the live site. Do not fall back to
+// localhost in production, because the invite is opened on the recipient's device.
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://vallalarjeevakarunyam-v2.vercel.app').replace(/\/$/, '')
+const adminInviteRedirectUrl = `${siteUrl}/admin/accept-invite`
 
 function getAdminAuthClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -90,7 +93,7 @@ export default async function AdminManagementPage() {
     if (existingInvite) await db.from('admin_invites').update({ role: 'admin', status: 'pending' }).eq('id', existingInvite.id)
     else await db.from('admin_invites').insert({ email, role: 'admin', status: 'pending' })
 
-    const { error } = await adminAuth.auth.admin.inviteUserByEmail(email, { redirectTo: `${siteUrl}/admin/accept-invite`, data: { invited_as: 'admin' } })
+    const { error } = await adminAuth.auth.admin.inviteUserByEmail(email, { redirectTo: adminInviteRedirectUrl, data: { invited_as: 'admin' } })
     if (error) {
       console.error('Admin invitation email failed:', error.message)
       await db.from('admin_invites').update({ status: inviteFailureStatus(error) }).eq('email', email)
@@ -147,7 +150,7 @@ export default async function AdminManagementPage() {
       }
     }
 
-    const { error } = await adminAuth.auth.admin.inviteUserByEmail(email, { redirectTo: `${siteUrl}/admin/accept-invite`, data: { invited_as: 'admin' } })
+    const { error } = await adminAuth.auth.admin.inviteUserByEmail(email, { redirectTo: adminInviteRedirectUrl, data: { invited_as: 'admin' } })
     if (error) {
       console.error('Admin invitation resend failed:', error.message)
       await db.from('admin_invites').update({ status: inviteFailureStatus(error) }).eq('id', id)
