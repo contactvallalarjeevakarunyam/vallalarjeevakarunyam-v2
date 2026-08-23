@@ -38,6 +38,30 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   async function approveListing(formData:FormData){'use server';await changeStatus(formData,'approved')}
   async function rejectListing(formData:FormData){'use server';await changeStatus(formData,'rejected')}
 
+  async function markVerified(formData:FormData){
+    'use server'
+    const listingId=Number(formData.get('listingId'))
+    const verificationNotes=String(formData.get('verificationNotes')||'').trim()
+    if(!Number.isInteger(listingId)||!verificationNotes) return
+    const db=await createClient()
+    const {data:{user:actor}}=await db.auth.getUser(); if(!actor) redirect('/admin/login')
+    const {data:actorAdmin}=await db.from('admins').select('user_id').eq('user_id',actor.id).maybeSingle(); if(!actorAdmin) return
+    const {error}=await db.from('listings').update({verification_status:'verified',verification_notes:verificationNotes,verified_by:actor.id,verified_at:new Date().toISOString()}).eq('id',listingId).eq('status','approved')
+    if(error){console.error('Listing verification error:',error);return}
+    revalidateListingPages()
+  }
+
+  async function markUnverified(formData:FormData){
+    'use server'
+    const listingId=Number(formData.get('listingId')); if(!Number.isInteger(listingId)) return
+    const db=await createClient()
+    const {data:{user:actor}}=await db.auth.getUser(); if(!actor) redirect('/admin/login')
+    const {data:actorAdmin}=await db.from('admins').select('user_id').eq('user_id',actor.id).maybeSingle(); if(!actorAdmin) return
+    const {error}=await db.from('listings').update({verification_status:'pending',verification_notes:null,verified_by:null,verified_at:null}).eq('id',listingId).eq('status','approved')
+    if(error){console.error('Listing verification reset error:',error);return}
+    revalidateListingPages()
+  }
+
   const [pendingResult,approvedResult,rejectedResult]=await Promise.all([
     supabase.from('listings').select('*',{count:'exact',head:true}).eq('status','pending'),
     supabase.from('listings').select('*',{count:'exact',head:true}).eq('status','approved'),
@@ -60,6 +84,15 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       {listing.timing&&<div className="mt-5 bg-emerald-50 border border-emerald-200 rounded-lg p-4"><p className="text-sm font-semibold text-emerald-800 mb-1">🕐 Timing / Schedule</p><p className="text-gray-800 whitespace-pre-line">{listing.timing}</p></div>}
       <section className="mt-6"><h4 className="font-semibold text-gray-900 mb-3">Location</h4><div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"><p><strong>State:</strong> {listing.states?.name||'-'}</p><p><strong>District:</strong> {listing.districts?.name||'-'}</p><p><strong>Taluk / Sub-District:</strong> {listing.taluk||'-'}</p><p><strong>Panchayat / Municipality:</strong> {listing.panchayat||'-'}</p><p><strong>Village / Town:</strong> {listing.village||'-'}</p></div>{listing.google_maps_url&&<a href={listing.google_maps_url} target="_blank" rel="noopener noreferrer" className="inline-flex mt-4 text-emerald-700 hover:underline font-medium">📍 Open Google Maps</a>}</section>
       <section className="border-t border-gray-200 mt-6 pt-5"><h4 className="font-semibold text-gray-900 mb-1">Place / Organisation Contact</h4><p className="text-xs text-gray-500 mb-3">Public-facing contact information</p><div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"><p><strong>Contact:</strong> {listing.contact_person||'-'}</p><p><strong>Phone:</strong> {listing.phone||'-'}</p><p><strong>Email:</strong> {listing.email||'-'}</p><p><strong>WhatsApp:</strong> {listing.whatsapp||'-'}</p>{listing.website&&<p className="md:col-span-2 break-all"><strong>Website:</strong> <a href={listing.website} target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">{listing.website}</a></p>}</div></section>
+
+      {activeStatus==='approved'&&<section className={`mt-6 rounded-xl border p-5 ${listing.verification_status==='verified'?'border-emerald-200 bg-emerald-50':'border-amber-200 bg-amber-50'}`}>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div><h4 className="font-semibold text-gray-900">Vallalar Jeevakarunyam Verification</h4><p className={`mt-1 text-sm font-semibold ${listing.verification_status==='verified'?'text-emerald-700':'text-amber-700'}`}>{listing.verification_status==='verified'?'✓ Verified by Vallalar Jeevakarunyam':'● Yet to be verified by Vallalar Jeevakarunyam'}</p></div>
+          {listing.source_url&&<a href={listing.source_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-emerald-700 hover:underline">View source ↗</a>}
+        </div>
+        {listing.verification_status==='verified' ? <div className="mt-4"><p className="text-sm text-gray-700"><strong>Verification note:</strong> {listing.verification_notes||'Verified by an administrator.'}</p>{listing.verified_at&&<p className="text-xs text-gray-500 mt-2">Verified on {new Date(listing.verified_at).toLocaleString('en-IN')}</p>}<form action={markUnverified} className="mt-4"><input type="hidden" name="listingId" value={listing.id}/><button type="submit" className="px-4 py-2 border border-amber-600 text-amber-800 bg-white font-semibold rounded-lg hover:bg-amber-50">Return to verification queue</button></form></div> : <form action={markVerified} className="mt-4"><input type="hidden" name="listingId" value={listing.id}/><label className="block text-sm font-semibold text-gray-800 mb-2" htmlFor={`verification-${listing.id}`}>Confirmation note <span className="text-red-600">*</span></label><textarea id={`verification-${listing.id}`} name="verificationNotes" required rows={3} placeholder="Example: Spoke to centre office on 23 Aug 2026. Location, phone and services confirmed." className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm text-gray-900"/><button type="submit" className="mt-3 px-5 py-2.5 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800">✓ Mark as Verified by Vallalar Jeevakarunyam</button></form>}
+      </section>}
+
       <section className="mt-6 rounded-xl border border-blue-200 bg-blue-50/60 p-5"><div className="flex flex-wrap items-center justify-between gap-2 mb-3"><div><h4 className="font-semibold text-gray-900">🔒 Private Submitter Details</h4><p className="text-xs text-gray-600 mt-1">For administrator verification only — never displayed publicly.</p></div>{listing.submitter_declaration&&<span className="inline-flex px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">✓ Declaration confirmed</span>}</div>{listing.submitter_name||listing.submitter_email||listing.submitter_phone?<div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm"><p><strong>Name:</strong> {listing.submitter_name||'-'}</p><p className="break-all"><strong>Email:</strong> {listing.submitter_email||'-'}</p><p><strong>Mobile:</strong> {listing.submitter_phone||'-'}</p></div>:<p className="text-sm text-gray-600">No submitter details were captured for this older listing.</p>}</section>
       {activeStatus==='pending'&&<div className="border-t border-gray-200 mt-6 pt-5 flex flex-col sm:flex-row gap-3"><form action={approveListing}><input type="hidden" name="listingId" value={listing.id}/><button type="submit" className="w-full sm:w-auto px-6 py-2.5 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800">✓ Approve</button></form><form action={rejectListing}><input type="hidden" name="listingId" value={listing.id}/><button type="submit" className="w-full sm:w-auto px-6 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">✕ Reject</button></form></div>}
     </article>)}</div>}
