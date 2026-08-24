@@ -12,8 +12,8 @@ const navItems = [
   { name: 'Temples & Meditation Centres', href: '/temple' },
   { name: 'Affordable Stays', href: '/stay' },
   { name: 'Volunteer & Community Service', href: '/volunteer' },
-  { name: 'Medical Services', href: '/medical' },
-  { name: 'Education', href: '/education' },
+  { name: 'Affordable Healthcare', href: '/medical' },
+  { name: 'Affordable Education', href: '/education' },
   { name: 'Map', href: '/map' },
 ]
 
