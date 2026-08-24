@@ -17,10 +17,10 @@ export default async function Home() {
     { title: 'Jeeva Samadhi', description: 'Discover sacred spaces dedicated to spiritual practice and meditation.', icon: '🕉️', href: '/jeeva-samadhi' },
     { title: 'Temples & Meditation Centres', description: 'Explore temples, meditation centres and spiritual spaces dedicated to compassion and peaceful practice.', icon: '🛕', href: '/temple' },
     { title: 'Affordable Stays', description: 'Find free and affordable accommodation options for pilgrims, travellers and people in need.', icon: '🏠', href: '/stay' },
-    { title: 'Volunteer & Community Service', description: 'Volunteer with Vallalar Jeevakarunyam or connect with community groups carrying out compassionate, environmental and social service.', icon: '🤝', href: '/volunteer', actionLabel: 'Explore & Volunteer' },
     { title: 'Affordable Healthcare', description: 'Find free and affordable healthcare services, charitable medical facilities and community health initiatives.', icon: '🏥', href: '/medical' },
     { title: 'Affordable Education', description: 'Find free and genuinely affordable schools, colleges, learning centres, coaching and skill-development services.', icon: '🎓', href: '/education' },
-    { title: 'Map', description: 'Explore approved locations and initiatives through their verified map links.', icon: '🗺️', href: '/map', actionLabel: 'Explore Locations' },
+    { title: 'Volunteer & Community Service', description: 'Volunteer with Vallalar Jeevakarunyam or connect with community groups carrying out compassionate, environmental and social service.', icon: '🤝', href: '/volunteer', actionLabel: 'Explore & Volunteer' },
+    { title: 'Interactive Map', description: 'Explore approved service locations and initiatives together on an interactive map.', icon: '🗺️', href: '/map', actionLabel: 'Explore Interactive Map' },
   ]
 
   return (
