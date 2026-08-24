@@ -1,0 +1,4 @@
+-- The verification_status constraint accepts:
+-- unverified, pending_verification, verified.
+-- Application code now uses pending_verification when returning a listing to the verification queue.
+-- No database schema mutation is required.
