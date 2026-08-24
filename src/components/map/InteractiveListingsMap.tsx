@@ -21,10 +21,12 @@ type MapListing = {
 const typeLabels: Record<string, string> = {
   annadhanam: 'Annadhanam',
   jeeva_samadhi: 'Jeeva Samadhi',
-  temple: 'Temple & Meditation Centre',
-  stay: 'Affordable Stay',
-  community_service: 'Community Service',
-  medical: 'Medical Service',
+  temple: 'Temples & Meditation Centres',
+  stay: 'Affordable Stays',
+  medical: 'Affordable Healthcare',
+  education: 'Affordable Education',
+  community_service: 'Volunteer & Community Service',
+  volunteer: 'Volunteer & Community Service',
 }
 
 const markerIcon = L.divIcon({
@@ -54,7 +56,7 @@ export default function InteractiveListingsMap({ listings }: { listings: MapList
   const filtered = category === 'all' ? listings : listings.filter((item) => item.listing_type === category)
 
   if (!listings.length) {
-    return <div className="bg-white border border-gray-200 rounded-xl p-8 text-center"><h2 className="text-xl font-semibold text-gray-900">No coordinate-based markers yet</h2><p className="text-gray-600 mt-2">Approved listings will appear on the interactive map once latitude and longitude are available.</p></div>
+    return <div className="bg-white border border-gray-200 rounded-xl p-8 text-center"><h2 className="text-xl font-semibold text-gray-900">No coordinate-based markers yet</h2><p className="text-gray-600 mt-2">Approved listings will appear on the Interactive Map once latitude and longitude are available.</p></div>
   }
 
   return (
