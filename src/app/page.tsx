@@ -9,7 +9,7 @@ export default async function Home() {
     .from('listings')
     .select(`*, states (name), districts (name)`)
     .eq('status', 'approved')
-    .in('listing_type', ['annadhanam','jeeva_samadhi','temple','stay','community_service','medical'])
+    .in('listing_type', ['annadhanam','jeeva_samadhi','temple','stay','community_service','medical','education'])
     .order('created_at', { ascending: false })
 
   const features = [
@@ -19,6 +19,7 @@ export default async function Home() {
     { title: 'Affordable Stays', description: 'Find free and affordable accommodation options for pilgrims, travellers and people in need.', icon: '🏠', href: '/stay' },
     { title: 'Volunteer & Community Service', description: 'Volunteer with Vallalar Jeevakarunyam or connect with community groups carrying out compassionate, environmental and social service.', icon: '🤝', href: '/volunteer', actionLabel: 'Explore & Volunteer' },
     { title: 'Affordable Medical Services', description: 'Find free and affordable medical services, charitable healthcare facilities and community health initiatives.', icon: '🏥', href: '/medical' },
+    { title: 'Affordable Educational Institutes', description: 'Find free and genuinely affordable educational institutes, learning centres, coaching and skill-development services.', icon: '🎓', href: '/education' },
     { title: 'Map', description: 'Explore approved locations and initiatives through their verified map links.', icon: '🗺️', href: '/map', actionLabel: 'Explore Locations' },
   ]
 
