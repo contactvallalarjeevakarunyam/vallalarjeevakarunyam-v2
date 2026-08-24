@@ -11,7 +11,7 @@ import FormSelect from './FormSelect'
 const listingTypes = [
   { value: 'annadhanam', label: 'Annadhanam' }, { value: 'jeeva_samadhi', label: 'Jeeva Samadhi' },
   { value: 'temple', label: 'Temples & Meditation Centres' }, { value: 'stay', label: 'Affordable Stays' },
-  { value: 'medical', label: 'Affordable Medical Services' }, { value: 'education', label: 'Affordable Educational Institutes' },
+  { value: 'medical', label: 'Affordable Healthcare' }, { value: 'education', label: 'Affordable Education' },
   { value: 'community_service', label: 'Community Service' },
 ]
 const serviceTypes = [
