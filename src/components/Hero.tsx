@@ -65,8 +65,8 @@ export default function Hero() {
           <p className="text-gray-600 mt-8 max-w-2xl mx-auto">
             Know an Annadhanam centre, Jeeva Samadhi,
             Temple or Meditation Centre, Affordable Stay,
-            Medical Service or Community Service Group?
-            Help others by sharing the details.
+            Medical Service, Affordable Educational Institute or
+            Community Service Group? Help others by sharing the details.
           </p>
 
           {/* SUBMIT LISTING */}
