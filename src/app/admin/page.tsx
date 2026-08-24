@@ -7,14 +7,14 @@ import LogoutButton from '@/components/admin/LogoutButton'
 type AdminPageProps = { searchParams: Promise<{ status?: string }> }
 
 function getListingTypeLabel(type: string | null) {
-  const labels: Record<string,string> = { annadhanam:'Annadhanam', jeeva_samadhi:'Jeeva Samadhi', temple:'Temples & Meditation Centres', stay:'Affordable Stays', medical:'Affordable Medical Services', community_service:'Community Service', volunteer:'Volunteer Services' }
+  const labels: Record<string,string> = { annadhanam:'Annadhanam', jeeva_samadhi:'Jeeva Samadhi', temple:'Temples & Meditation Centres', stay:'Affordable Stays', medical:'Affordable Medical Services', education:'Affordable Educational Institutes', community_service:'Community Service', volunteer:'Volunteer Services' }
   return type ? labels[type] || type : '-'
 }
 function getServiceTypeLabel(type: string | null) {
   const labels: Record<string,string> = { ulavara_pani:'Ulavara Pani', water_body_restoration:'Water Body Restoration', tree_planting:'Tree Planting', environmental_conservation:'Environmental Conservation', temple_service:'Temple Service', heritage_conservation:'Heritage Conservation', food_service:'Annadhanam / Food Service', animal_welfare:'Animal Welfare', community_social_service:'Community / Social Service', other:'Other' }
   return type ? labels[type] || type : '-'
 }
-function revalidateListingPages(){['/admin','/','/annadhanam','/jeeva-samadhi','/temple','/stay','/medical','/volunteer','/map'].forEach((path)=>revalidatePath(path))}
+function revalidateListingPages(){['/admin','/','/annadhanam','/jeeva-samadhi','/temple','/stay','/medical','/education','/volunteer','/map'].forEach((path)=>revalidatePath(path))}
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
   const supabase = await createClient()
@@ -57,7 +57,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     const db=await createClient()
     const {data:{user:actor}}=await db.auth.getUser(); if(!actor) redirect('/admin/login')
     const {data:actorAdmin}=await db.from('admins').select('user_id').eq('user_id',actor.id).maybeSingle(); if(!actorAdmin) return
-    const {error}=await db.from('listings').update({verification_status:'pending',verification_notes:null,verified_by:null,verified_at:null}).eq('id',listingId).eq('status','approved')
+    const {error}=await db.from('listings').update({verification_status:'pending_verification',verification_notes:null,verified_by:null,verified_at:null}).eq('id',listingId).eq('status','approved')
     if(error){console.error('Listing verification reset error:',error);return}
     revalidateListingPages()
   }
