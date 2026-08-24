@@ -21,8 +21,8 @@ export default function Footer() {
               A public information platform connecting people with
               Annadhanam, Jeeva Samadhi, Temples & Meditation
               Centres, Affordable Stays, Volunteer & Community
-              Service, Affordable Medical Services and Affordable
-              Educational Institutes.
+              Service, Affordable Healthcare and Affordable
+              Education.
             </p>
           </div>
 
@@ -124,7 +124,7 @@ export default function Footer() {
                   href="/medical"
                   className="hover:text-emerald-400 transition-colors"
                 >
-                  Affordable Medical Services
+                  Affordable Healthcare
                 </Link>
               </li>
 
@@ -133,7 +133,7 @@ export default function Footer() {
                   href="/education"
                   className="hover:text-emerald-400 transition-colors"
                 >
-                  Affordable Educational Institutes
+                  Affordable Education
                 </Link>
               </li>
 
