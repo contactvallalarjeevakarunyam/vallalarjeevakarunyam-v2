@@ -11,10 +11,10 @@ const navItems = [
   { name: 'Jeeva Samadhi', href: '/jeeva-samadhi' },
   { name: 'Temples & Meditation Centres', href: '/temple' },
   { name: 'Affordable Stays', href: '/stay' },
-  { name: 'Volunteer & Community Service', href: '/volunteer' },
   { name: 'Affordable Healthcare', href: '/medical' },
   { name: 'Affordable Education', href: '/education' },
-  { name: 'Map', href: '/map' },
+  { name: 'Volunteer & Community Service', href: '/volunteer' },
+  { name: 'Interactive Map', href: '/map' },
 ]
 
 export default function Navigation() {
