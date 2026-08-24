@@ -43,7 +43,7 @@ function getServiceTypeIcon(type?: string | null) {
   return type ? icons[type] || '🌿' : '🌿'
 }
 
-export default function ListingsExplorer({ listings, badgeLabel, showServiceTypeFilter = false, showVerificationBadge = false }: ListingsExplorerProps) {
+export default function ListingsExplorer({ listings, badgeLabel, showServiceTypeFilter = false, showVerificationBadge = true }: ListingsExplorerProps) {
   const [search, setSearch] = useState('')
   const [selectedServiceType, setSelectedServiceType] = useState('')
   const [selectedState, setSelectedState] = useState('')
