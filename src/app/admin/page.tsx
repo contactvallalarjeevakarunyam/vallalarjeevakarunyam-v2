@@ -7,7 +7,7 @@ import LogoutButton from '@/components/admin/LogoutButton'
 type AdminPageProps = { searchParams: Promise<{ status?: string }> }
 
 function getListingTypeLabel(type: string | null) {
-  const labels: Record<string,string> = { annadhanam:'Annadhanam', jeeva_samadhi:'Jeeva Samadhi', temple:'Temples & Meditation Centres', stay:'Affordable Stays', medical:'Affordable Medical Services', education:'Affordable Educational Institutes', community_service:'Community Service', volunteer:'Volunteer Services' }
+  const labels: Record<string,string> = { annadhanam:'Annadhanam', jeeva_samadhi:'Jeeva Samadhi', temple:'Temples & Meditation Centres', stay:'Affordable Stays', medical:'Affordable Healthcare', education:'Affordable Education', community_service:'Community Service', volunteer:'Volunteer Services' }
   return type ? labels[type] || type : '-'
 }
 function getServiceTypeLabel(type: string | null) {

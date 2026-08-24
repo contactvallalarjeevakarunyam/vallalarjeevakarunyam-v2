@@ -2,7 +2,7 @@ import ListingForm from '@/components/forms/ListingForm'
 
 export const metadata = {
   title: 'Submit Listing - Vallalar Jeevakarunyam',
-  description: 'Submit a listing for a Jeevakarunyam initiative, temple, stay, volunteer opportunity, or other community service.',
+  description: 'Submit a listing for Annadhanam, spiritual places, affordable stays, Affordable Healthcare, Affordable Education, volunteer or community service.',
 }
 
 export default function SubmitPage() {
@@ -14,7 +14,7 @@ export default function SubmitPage() {
             Submit a Listing
           </h1>
           <p className="text-lg text-gray-600">
-            Share your Jeevakarunyam initiative, temple, stay facility, or volunteer opportunity with our community.
+            Share information about Annadhanam, spiritual places, affordable stays, Affordable Healthcare, Affordable Education or community service.
           </p>
         </div>
 
