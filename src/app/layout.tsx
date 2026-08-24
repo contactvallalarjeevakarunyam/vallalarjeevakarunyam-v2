@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     default: 'Vallalar Jeevakarunyam',
     template: '%s | Vallalar Jeevakarunyam',
   },
-  description: 'A public service platform for Annadhanam, Jeeva Samadhi, temples and meditation centres, affordable stays, medical services and compassionate community service.',
+  description: 'A public service platform for Annadhanam, Jeeva Samadhi, temples and meditation centres, affordable stays, affordable healthcare, affordable education and compassionate community service.',
   applicationName: 'Vallalar Jeevakarunyam',
-  keywords: ['Vallalar', 'Jeevakarunyam', 'Annadhanam', 'Jeeva Samadhi', 'Temples', 'Meditation Centres', 'Community Service'],
+  keywords: ['Vallalar', 'Jeevakarunyam', 'Annadhanam', 'Jeeva Samadhi', 'Temples', 'Meditation Centres', 'Affordable Healthcare', 'Affordable Education', 'Community Service'],
   robots: { index: true, follow: true },
 }
 
