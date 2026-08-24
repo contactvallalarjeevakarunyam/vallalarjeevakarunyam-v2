@@ -13,6 +13,7 @@ const navItems = [
   { name: 'Affordable Stays', href: '/stay' },
   { name: 'Volunteer & Community Service', href: '/volunteer' },
   { name: 'Medical Services', href: '/medical' },
+  { name: 'Education', href: '/education' },
   { name: 'Map', href: '/map' },
 ]
 

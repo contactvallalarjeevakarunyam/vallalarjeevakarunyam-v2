@@ -77,6 +77,12 @@ const categoryDetails: Record<
     icon: '🏥',
     href: '/medical',
   },
+
+  education: {
+    label: 'Affordable Educational Institutes',
+    icon: '🎓',
+    href: '/education',
+  },
 }
 
 export default function HomeListingsExplorer({
@@ -229,7 +235,8 @@ export default function HomeListingsExplorer({
           <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
             Search across Annadhanam, Jeeva Samadhi,
             Temples & Meditation Centres, Affordable Stays,
-            Volunteer Services and Affordable Medical Services.
+            Volunteer Services, Affordable Medical Services and
+            Affordable Educational Institutes.
           </p>
 
         </div>
