@@ -66,12 +66,6 @@ const categoryDetails: Record<
     href: '/stay',
   },
 
-  volunteer: {
-    label: 'Volunteer Services',
-    icon: '🤝',
-    href: '/volunteer',
-  },
-
   medical: {
     label: 'Affordable Healthcare',
     icon: '🏥',
@@ -82,6 +76,12 @@ const categoryDetails: Record<
     label: 'Affordable Education',
     icon: '🎓',
     href: '/education',
+  },
+
+  volunteer: {
+    label: 'Volunteer & Community Service',
+    icon: '🤝',
+    href: '/volunteer',
   },
 }
 
@@ -184,7 +184,7 @@ export default function HomeListingsExplorer({
           <h2 className="text-3xl font-bold text-gray-900">Find Services Near You</h2>
           <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
             Search across Annadhanam, Jeeva Samadhi, Temples & Meditation Centres,
-            Affordable Stays, Volunteer Services, Affordable Healthcare and Affordable Education.
+            Affordable Stays, Affordable Healthcare, Affordable Education and Volunteer & Community Service.
           </p>
         </div>
 
@@ -290,7 +290,7 @@ export default function HomeListingsExplorer({
                   </div>
                   <div className="mt-5 flex flex-wrap gap-2">
                     {details && <Link href={details.href} className="inline-flex px-4 py-2 bg-emerald-700 text-white text-sm font-semibold rounded-lg hover:bg-emerald-800 transition">View Category</Link>}
-                    {listing.google_maps_url && <a href={listing.google_maps_url} target="_blank" rel="noopener noreferrer" className="inline-flex px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition">📍 Map</a>}
+                    {listing.google_maps_url && <a href={listing.google_maps_url} target="_blank" rel="noopener noreferrer" className="inline-flex px-4 py-2 border border-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition">📍 Google Maps</a>}
                   </div>
                 </article>
               )
