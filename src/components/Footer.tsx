@@ -20,9 +20,9 @@ export default function Footer() {
             <p className="text-gray-400 leading-relaxed">
               A public information platform connecting people with
               Annadhanam, Jeeva Samadhi, Temples & Meditation
-              Centres, Affordable Stays, Volunteer & Community
-              Service, Affordable Healthcare and Affordable
-              Education.
+              Centres, Affordable Stays, Affordable Healthcare,
+              Affordable Education, Volunteer & Community Service,
+              and an Interactive Map.
             </p>
           </div>
 
@@ -112,15 +112,6 @@ export default function Footer() {
 
               <li>
                 <Link
-                  href="/volunteer"
-                  className="hover:text-emerald-400 transition-colors"
-                >
-                  Volunteer & Community Service
-                </Link>
-              </li>
-
-              <li>
-                <Link
                   href="/medical"
                   className="hover:text-emerald-400 transition-colors"
                 >
@@ -134,6 +125,24 @@ export default function Footer() {
                   className="hover:text-emerald-400 transition-colors"
                 >
                   Affordable Education
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/volunteer"
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  Volunteer & Community Service
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/map"
+                  className="hover:text-emerald-400 transition-colors"
+                >
+                  Interactive Map
                 </Link>
               </li>
 
