@@ -1,0 +1,4 @@
+-- Affordable Educational Institutes use listing_type = 'education'.
+-- The listings table currently has no CHECK constraint on listing_type,
+-- so no production DDL change is required for this category.
+-- This migration intentionally contains no schema mutation.
