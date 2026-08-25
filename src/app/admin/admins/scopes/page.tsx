@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
+import AdminScopeForm from '@/components/admin/AdminScopeForm'
 
 const categories = [
   ['annadhanam', 'Annadhanam'],
@@ -125,8 +126,10 @@ export default async function AdminScopesPage() {
     const adminClient = getServiceClient()
     const id = Number(formData.get('scopeId'))
     if (!Number.isInteger(id)) return
+
     const { data: scope } = await adminClient.from('admin_scopes').select('id, user_id, state_id, district_id, listing_type').eq('id', id).maybeSingle()
     if (!scope) return
+
     await adminClient.from('admin_scopes').update({ is_active: false }).eq('id', id)
     await adminClient.from('admin_activity_log').insert({
       actor_user_id: actor.id,
@@ -153,9 +156,11 @@ export default async function AdminScopesPage() {
 
   const emailByUserId = new Map(authUsers.map(user => [user.id, user.email || user.id]))
   const stateById = new Map((states || []).map(state => [state.id, state.name]))
+  const categoryOptions = categories.map(([value, label]) => ({ value, label }))
 
   return <main className="max-w-5xl mx-auto p-6">
     <Link href="/admin" className="text-emerald-700 font-semibold">← Admin Dashboard</Link>
+
     <div className="mt-6 mb-8">
       <p className="text-sm font-semibold text-emerald-700">Super Admin</p>
       <h1 className="text-3xl font-bold text-gray-900 mt-1">District & Category Admin Scopes</h1>
@@ -170,6 +175,7 @@ export default async function AdminScopesPage() {
       {(admins || []).map(admin => {
         const adminScopes = (scopes || []).filter(scope => scope.user_id === admin.user_id)
         const activeScopes = adminScopes.filter(scope => scope.is_active)
+
         return <section key={admin.user_id} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div>
@@ -182,29 +188,30 @@ export default async function AdminScopesPage() {
           {admin.role !== 'super_admin' && <>
             <div className="mt-5">
               <h2 className="font-semibold text-gray-900">Active scopes</h2>
-              {activeScopes.length === 0 ? <p className="mt-2 text-sm text-amber-700">No active scope. This admin cannot manage pending/rejected listings until a scope is assigned.</p> : <div className="mt-3 space-y-2">
-                {activeScopes.map(scope => {
-                  const stateName = scope.state_id ? relationName(scope.states) || stateById.get(scope.state_id) || `State ${scope.state_id}` : 'All states'
-                  const districtName = scope.district_id ? relationName(scope.districts) || `District ${scope.district_id}` : 'All districts'
-                  return <div key={scope.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <div className="text-sm text-gray-800"><strong>{stateName}</strong> · {districtName} · {categoryLabel(scope.listing_type)}</div>
-                    <form action={deactivateScope}><input type="hidden" name="scopeId" value={scope.id}/><button className="text-sm font-semibold text-red-700 border border-red-200 bg-white rounded-lg px-3 py-1.5 hover:bg-red-50">Deactivate</button></form>
-                  </div>
-                })}
-              </div>}
+              {activeScopes.length === 0
+                ? <p className="mt-2 text-sm text-amber-700">No active scope. This admin cannot manage pending/rejected listings until a scope is assigned.</p>
+                : <div className="mt-3 space-y-2">
+                    {activeScopes.map(scope => {
+                      const stateName = scope.state_id ? relationName(scope.states) || stateById.get(scope.state_id) || `State ${scope.state_id}` : 'All states'
+                      const districtName = scope.district_id ? relationName(scope.districts) || `District ${scope.district_id}` : 'All districts'
+                      return <div key={scope.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        <div className="text-sm text-gray-800"><strong>{stateName}</strong> · {districtName} · {categoryLabel(scope.listing_type)}</div>
+                        <form action={deactivateScope}>
+                          <input type="hidden" name="scopeId" value={scope.id}/>
+                          <button className="text-sm font-semibold text-red-700 border border-red-200 bg-white rounded-lg px-3 py-1.5 hover:bg-red-50">Deactivate</button>
+                        </form>
+                      </div>
+                    })}
+                  </div>}
             </div>
 
-            <form action={saveScope} className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
-              <input type="hidden" name="userId" value={admin.user_id}/>
-              <h3 className="font-semibold text-gray-900">Add / reactivate a scope</h3>
-              <p className="text-xs text-gray-600 mt-1">Examples: Karnataka + Davanagere + Affordable Education, or Tamil Nadu + All districts + Annadhanam.</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                <div><label className="block text-xs font-semibold text-gray-700 mb-1">State</label><select name="stateId" className="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm"><option value="">All states</option>{(states || []).map(state => <option key={state.id} value={state.id}>{state.name}</option>)}</select></div>
-                <div><label className="block text-xs font-semibold text-gray-700 mb-1">District</label><select name="districtId" className="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm"><option value="">All districts</option>{(districts || []).map(district => <option key={district.id} value={district.id}>{district.name} — {stateById.get(district.state_id) || 'State'}</option>)}</select></div>
-                <div><label className="block text-xs font-semibold text-gray-700 mb-1">Category</label><select name="listingType" className="w-full border border-gray-300 bg-white rounded-lg px-3 py-2 text-sm"><option value="">All categories</option>{categories.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
-              </div>
-              <button className="mt-4 bg-emerald-700 text-white font-semibold rounded-lg px-5 py-2.5 hover:bg-emerald-800">Save Scope</button>
-            </form>
+            <AdminScopeForm
+              userId={admin.user_id}
+              states={states || []}
+              districts={districts || []}
+              categories={categoryOptions}
+              action={saveScope}
+            />
           </>}
         </section>
       })}
