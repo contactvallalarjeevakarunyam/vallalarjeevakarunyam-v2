@@ -19,6 +19,11 @@ function categoryLabel(value: string | null) {
   return categories.find(([key]) => key === value)?.[1] || value
 }
 
+function relationName(value: { name: string }[] | { name: string } | null | undefined) {
+  if (Array.isArray(value)) return value[0]?.name
+  return value?.name
+}
+
 function getServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const secret = process.env.SUPABASE_SECRET_KEY
@@ -179,8 +184,8 @@ export default async function AdminScopesPage() {
               <h2 className="font-semibold text-gray-900">Active scopes</h2>
               {activeScopes.length === 0 ? <p className="mt-2 text-sm text-amber-700">No active scope. This admin cannot manage pending/rejected listings until a scope is assigned.</p> : <div className="mt-3 space-y-2">
                 {activeScopes.map(scope => {
-                  const stateName = scope.state_id ? scope.states?.name || stateById.get(scope.state_id) || `State ${scope.state_id}` : 'All states'
-                  const districtName = scope.district_id ? scope.districts?.name || `District ${scope.district_id}` : 'All districts'
+                  const stateName = scope.state_id ? relationName(scope.states) || stateById.get(scope.state_id) || `State ${scope.state_id}` : 'All states'
+                  const districtName = scope.district_id ? relationName(scope.districts) || `District ${scope.district_id}` : 'All districts'
                   return <div key={scope.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
                     <div className="text-sm text-gray-800"><strong>{stateName}</strong> · {districtName} · {categoryLabel(scope.listing_type)}</div>
                     <form action={deactivateScope}><input type="hidden" name="scopeId" value={scope.id}/><button className="text-sm font-semibold text-red-700 border border-red-200 bg-white rounded-lg px-3 py-1.5 hover:bg-red-50">Deactivate</button></form>
