@@ -57,7 +57,7 @@ export default function ListingForm() {
       })
       const result=await response.json().catch(()=>({}))
       if(!response.ok) throw new Error(result?.error||'Unable to submit the listing.')
-      setSuccessMessage('Listing submitted successfully! Our admins have been alerted and will review it shortly.')
+      setSuccessMessage('Listing submitted successfully! It is now pending admin review.')
       setFormData(initialFormData);setLocation(initialLocation)
     }catch(error){if(error instanceof ZodError){const fieldErrors:Record<string,string>={};error.issues.forEach(issue=>{const path=issue.path[0]?.toString();if(path)fieldErrors[path]=issue.message});setErrors(fieldErrors)}else{console.error('Listing submission error:',error);setErrorMessage(error instanceof Error?error.message:'Unable to submit the listing. Please try again.')}}finally{setLoading(false)}
   }
