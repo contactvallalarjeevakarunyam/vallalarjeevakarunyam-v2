@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { ZodError } from 'zod'
 import LocationSelector from '@/components/location/LocationSelector'
-import { createClient } from '@/lib/supabase/client'
 import { listingFormSchema, type ListingFormData } from '@/lib/validations/listing'
 import FormField from './FormField'
 import FormSelect from './FormSelect'
@@ -51,20 +50,16 @@ export default function ListingForm() {
     try{
       const validatedData:ListingFormData=listingFormSchema.parse({...formData,state_id:location.state_id,district_id:location.district_id})
       setLoading(true)
-      const supabase=createClient()
-      const insertData={
-        listing_type:validatedData.listingType,service_type:validatedData.listingType==='community_service'?validatedData.serviceType?.trim()||null:null,
-        name:validatedData.name.trim(),description:validatedData.description.trim(),state_id:validatedData.state_id,district_id:validatedData.district_id,taluk:validatedData.taluk.trim(),panchayat:validatedData.panchayat.trim(),village:validatedData.village.trim(),timing:validatedData.timing?.trim()||null,
-        google_maps_url:validatedData.googleMapsUrl?.trim()||null,latitude:validatedData.latitude?.trim()?Number(validatedData.latitude):null,longitude:validatedData.longitude?.trim()?Number(validatedData.longitude):null,
-        contact_person:validatedData.contactPerson.trim(),phone:validatedData.mobileNumber.trim(),whatsapp:validatedData.whatsapp?.trim()||null,email:validatedData.email.trim(),website:validatedData.website?.trim()||null,
-        submitter_name:validatedData.submitterName.trim(),submitter_email:validatedData.submitterEmail.trim(),submitter_phone:validatedData.submitterPhone.trim(),submitter_declaration:validatedData.submitterDeclaration,
-        status:'pending',sub_district_id:null,local_body_id:null,settlement_id:null,image_url:null,
-      }
-      const {error}=await supabase.from('listings').insert(insertData)
-      if(error) throw error
-      setSuccessMessage('Listing submitted successfully! We will review it shortly.')
+      const response=await fetch('/api/listings',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(validatedData),
+      })
+      const result=await response.json().catch(()=>({}))
+      if(!response.ok) throw new Error(result?.error||'Unable to submit the listing.')
+      setSuccessMessage('Listing submitted successfully! It is now pending admin review.')
       setFormData(initialFormData);setLocation(initialLocation)
-    }catch(error){if(error instanceof ZodError){const fieldErrors:Record<string,string>={};error.issues.forEach(issue=>{const path=issue.path[0]?.toString();if(path)fieldErrors[path]=issue.message});setErrors(fieldErrors)}else{console.error('Listing submission error:',error);setErrorMessage('Unable to submit the listing. Please try again.')}}finally{setLoading(false)}
+    }catch(error){if(error instanceof ZodError){const fieldErrors:Record<string,string>={};error.issues.forEach(issue=>{const path=issue.path[0]?.toString();if(path)fieldErrors[path]=issue.message});setErrors(fieldErrors)}else{console.error('Listing submission error:',error);setErrorMessage(error instanceof Error?error.message:'Unable to submit the listing. Please try again.')}}finally{setLoading(false)}
   }
 
   return <form onSubmit={handleSubmit} onReset={handleReset} className="space-y-6">
