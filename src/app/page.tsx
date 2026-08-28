@@ -5,12 +5,18 @@ import { createClient } from '@/lib/supabase/server'
 
 export default async function Home() {
   const supabase = await createClient()
-  const { data: listings, error } = await supabase
-    .from('listings')
-    .select(`*, states (name), districts (name)`)
-    .eq('status', 'approved')
-    .in('listing_type', ['annadhanam','jeeva_samadhi','temple','stay','community_service','medical','education'])
-    .order('created_at', { ascending: false })
+  const [{ data: listings, error }, { data: subDistricts }] = await Promise.all([
+    supabase
+      .from('listings')
+      .select(`*, states (name), districts (name)`)
+      .eq('status', 'approved')
+      .in('listing_type', ['annadhanam','jeeva_samadhi','temple','stay','community_service','medical','education'])
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('sub_districts')
+      .select(`id, name, state_id, district_id, states (name), districts (name)`)
+      .order('name', { ascending: true }),
+  ])
 
   const features = [
     { title: 'Annadhanam', description: 'Connect with communities providing food assistance and nourishment to all beings.', icon: '🍛', href: '/annadhanam' },
@@ -27,7 +33,7 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
         <Hero />
-        {!error && <HomeListingsExplorer listings={listings || []} />}
+        {!error && <HomeListingsExplorer listings={listings || []} subDistricts={subDistricts || []} />}
         {error && <section className="bg-gray-50 px-4 py-10"><div className="max-w-7xl mx-auto"><div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-5 text-center">Unable to load search listings at the moment.</div></div></section>}
         <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
           <div className="max-w-7xl mx-auto">
