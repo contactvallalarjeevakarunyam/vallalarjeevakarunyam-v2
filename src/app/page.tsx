@@ -14,7 +14,7 @@ export default async function Home() {
       .order('created_at', { ascending: false }),
     supabase
       .from('sub_districts')
-      .select(`id, name, state_id, district_id, states (name), districts (name)`)
+      .select(`id, name, state_id, district_id`)
       .order('name', { ascending: true }),
   ])
 
