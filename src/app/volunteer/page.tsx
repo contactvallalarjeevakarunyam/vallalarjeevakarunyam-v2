@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function VolunteerPage() {
   const supabase = await createClient()
-  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'community_service').eq('status', 'approved').order('created_at', { ascending: false })
+  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'community_service').eq('status', 'approved').eq('verification_status', 'verified').order('created_at', { ascending: false })
 
   return <main className="min-h-screen bg-gray-50"><div className="max-w-6xl mx-auto px-4 py-8 md:py-10">
     <div className="mb-10"><Link href="/" className="inline-flex text-sm font-semibold text-emerald-700 hover:underline mb-5">← Back to Home</Link><p className="text-sm font-semibold text-emerald-700 mb-2">Vallalar Jeevakarunyam</p><h1 className="text-3xl md:text-4xl font-bold text-gray-900">Volunteer & Community Service</h1><p className="text-gray-600 mt-3 max-w-3xl leading-7">Contribute to Vallalar Jeevakarunyam or connect with organisations and groups carrying out compassionate, environmental and community service.</p></div>
