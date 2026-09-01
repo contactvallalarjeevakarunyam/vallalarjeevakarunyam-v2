@@ -10,7 +10,6 @@ export default async function Home() {
       .from('listings')
       .select(`*, states (name), districts (name)`)
       .eq('status', 'approved')
-      .eq('verification_status', 'verified')
       .in('listing_type', ['annadhanam','jeeva_samadhi','temple','stay','community_service','medical','education'])
       .order('created_at', { ascending: false }),
     supabase
