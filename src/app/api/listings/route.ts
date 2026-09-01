@@ -5,6 +5,10 @@ import { listingFormSchema } from '@/lib/validations/listing'
 
 export const runtime = 'nodejs'
 
+const MAX_PHOTOS = 5
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024
+const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const secret = process.env.SUPABASE_SECRET_KEY
@@ -18,7 +22,32 @@ function getAdminClient() {
 
 export async function POST(request: Request) {
   try {
-    const validatedData = listingFormSchema.parse(await request.json())
+    const contentType = request.headers.get('content-type') || ''
+    let validatedData
+    let photos: File[] = []
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData()
+      const payload = formData.get('payload')
+      if (typeof payload !== 'string') {
+        return NextResponse.json({ error: 'Invalid listing submission.' }, { status: 400 })
+      }
+      validatedData = listingFormSchema.parse(JSON.parse(payload))
+      photos = formData.getAll('photos').filter((value): value is File => value instanceof File && value.size > 0)
+
+      if (photos.length > MAX_PHOTOS) {
+        return NextResponse.json({ error: `You can upload up to ${MAX_PHOTOS} photos.` }, { status: 400 })
+      }
+
+      for (const photo of photos) {
+        if (!ALLOWED_MIME_TYPES.has(photo.type) || photo.size > MAX_PHOTO_SIZE) {
+          return NextResponse.json({ error: 'Each photo must be JPEG, PNG or WebP and no larger than 5 MB.' }, { status: 400 })
+        }
+      }
+    } else {
+      validatedData = listingFormSchema.parse(await request.json())
+    }
+
     const { url, secret, client } = getAdminClient()
 
     const insertData = {
@@ -57,6 +86,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unable to submit the listing.' }, { status: 500 })
     }
 
+    let uploadedPhotoCount = 0
+    const photoErrors: string[] = []
+
+    for (const [index, photo] of photos.entries()) {
+      const extension = photo.type === 'image/png' ? 'png' : photo.type === 'image/webp' ? 'webp' : 'jpg'
+      const storagePath = `submissions/${listing.id}/${crypto.randomUUID()}.${extension}`
+
+      const { error: uploadError } = await client.storage.from('listing-images').upload(storagePath, photo, {
+        contentType: photo.type,
+        upsert: false,
+      })
+
+      if (uploadError) {
+        console.error('Listing photo upload error:', uploadError)
+        photoErrors.push(photo.name)
+        continue
+      }
+
+      const { data: publicUrlData } = client.storage.from('listing-images').getPublicUrl(storagePath)
+      const imageUrl = publicUrlData.publicUrl
+
+      const { error: imageInsertError } = await client.from('listing_images').insert({
+        listing_id: listing.id,
+        image_url: imageUrl,
+        storage_path: storagePath,
+        caption: null,
+        sort_order: index,
+        uploaded_by: null,
+      })
+
+      if (imageInsertError) {
+        console.error('Listing photo record error:', imageInsertError)
+        await client.storage.from('listing-images').remove([storagePath])
+        photoErrors.push(photo.name)
+        continue
+      }
+
+      uploadedPhotoCount += 1
+
+      if (uploadedPhotoCount === 1) {
+        await client.from('listings').update({ image_url: imageUrl }).eq('id', listing.id)
+      }
+    }
+
     // Notification delivery must never make a successful public submission fail.
     try {
       const notificationResponse = await fetch(`${url}/functions/v1/notify-admins`, {
@@ -76,7 +149,12 @@ export async function POST(request: Request) {
       console.error('Admin notification request error:', notificationError)
     }
 
-    return NextResponse.json({ ok: true, listingId: listing.id }, { status: 201 })
+    return NextResponse.json({
+      ok: true,
+      listingId: listing.id,
+      uploadedPhotoCount,
+      photoErrors,
+    }, { status: 201 })
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: 'Please review the form fields and try again.', issues: error.issues }, { status: 400 })
