@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import LogoutButton from '@/components/admin/LogoutButton'
+import ListingPhotoManager from '@/components/admin/ListingPhotoManager'
 
 type AdminPageProps = { searchParams: Promise<{ status?: string }> }
 
@@ -84,6 +85,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       {listing.timing&&<div className="mt-5 bg-emerald-50 border border-emerald-200 rounded-lg p-4"><p className="text-sm font-semibold text-emerald-800 mb-1">🕐 Timing / Schedule</p><p className="text-gray-800 whitespace-pre-line">{listing.timing}</p></div>}
       <section className="mt-6"><h4 className="font-semibold text-gray-900 mb-3">Location</h4><div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"><p><strong>State:</strong> {listing.states?.name||'-'}</p><p><strong>District:</strong> {listing.districts?.name||'-'}</p><p><strong>Taluk / Sub-District:</strong> {listing.taluk||'-'}</p><p><strong>Panchayat / Municipality:</strong> {listing.panchayat||'-'}</p><p><strong>Village / Town:</strong> {listing.village||'-'}</p></div>{listing.google_maps_url&&<a href={listing.google_maps_url} target="_blank" rel="noopener noreferrer" className="inline-flex mt-4 text-emerald-700 hover:underline font-medium">📍 Open Google Maps</a>}</section>
       <section className="border-t border-gray-200 mt-6 pt-5"><h4 className="font-semibold text-gray-900 mb-1">Place / Organisation Contact</h4><p className="text-xs text-gray-500 mb-3">Public-facing contact information</p><div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm"><p><strong>Contact:</strong> {listing.contact_person||'-'}</p><p><strong>Phone:</strong> {listing.phone||'-'}</p><p><strong>Email:</strong> {listing.email||'-'}</p><p><strong>WhatsApp:</strong> {listing.whatsapp||'-'}</p>{listing.website&&<p className="md:col-span-2 break-all"><strong>Website:</strong> <a href={listing.website} target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">{listing.website}</a></p>}</div></section>
+
+      <section className="mt-6 rounded-xl border border-violet-200 bg-violet-50/50 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h4 className="font-semibold text-gray-900">📷 Listing Photos</h4><p className="text-xs text-gray-600 mt-1">Add or manage photos for this listing.</p></div><Link href={`/admin/listing-photos?q=${encodeURIComponent(listing.name || '')}`} className="text-sm font-semibold text-violet-800 hover:underline">Open Photo Manager →</Link></div><ListingPhotoManager listingId={Number(listing.id)} initialCoverImageUrl={listing.image_url} /></section>
 
       {activeStatus==='approved'&&<section className={`mt-6 rounded-xl border p-5 ${listing.verification_status==='verified'?'border-emerald-200 bg-emerald-50':'border-amber-200 bg-amber-50'}`}>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
