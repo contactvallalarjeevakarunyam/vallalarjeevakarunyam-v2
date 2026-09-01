@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function JeevaSamadhiPage() {
   const supabase = await createClient()
-  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'jeeva_samadhi').eq('status', 'approved').order('created_at', { ascending: false })
+  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'jeeva_samadhi').eq('status', 'approved').eq('verification_status', 'verified').order('created_at', { ascending: false })
 
   return <main className="min-h-screen bg-gray-50"><div className="max-w-6xl mx-auto px-4 py-8 md:py-10">
     <div className="mb-8"><Link href="/" className="inline-flex text-sm font-semibold text-emerald-700 hover:underline mb-5">← Back to Home</Link><p className="text-sm font-semibold text-emerald-700 mb-2">Vallalar Jeevakarunyam</p><h1 className="text-3xl md:text-4xl font-bold text-gray-900">Jeeva Samadhi</h1><p className="text-gray-600 mt-3 max-w-2xl leading-7">Discover approved Jeeva Samadhi locations and sacred spaces for spiritual practice and meditation. Please confirm visiting hours and access details directly before travelling.</p></div>
