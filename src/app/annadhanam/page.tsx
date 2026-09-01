@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function AnnadhanamPage() {
   const supabase = await createClient()
-  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'annadhanam').eq('status', 'approved').order('created_at', { ascending: false })
+  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'annadhanam').eq('status', 'approved').eq('verification_status', 'verified').order('created_at', { ascending: false })
 
   return <main className="min-h-screen bg-gray-50">
     <div className="max-w-6xl mx-auto px-4 py-8 md:py-10">
