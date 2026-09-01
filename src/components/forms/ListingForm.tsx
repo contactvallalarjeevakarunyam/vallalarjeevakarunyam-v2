@@ -21,6 +21,9 @@ const serviceTypes = [
   { value: 'community_social_service', label: 'Community / Social Service' }, { value: 'other', label: 'Other' },
 ]
 const countries = [{ value: 'india', label: 'India' }]
+const MAX_PHOTOS = 5
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024
+const ACCEPTED_PHOTO_TYPES = 'image/jpeg,image/png,image/webp'
 
 type FormState = { listingType:string; serviceType:string; name:string; description:string; country:string; taluk:string; panchayat:string; village:string; timing:string; googleMapsUrl:string; latitude:string; longitude:string; contactPerson:string; mobileNumber:string; whatsapp:string; email:string; website:string; submitterName:string; submitterEmail:string; submitterPhone:string; submitterDeclaration:boolean }
 type LocationState = { state_id:number|null; district_id:number|null }
@@ -30,6 +33,7 @@ const initialLocation: LocationState = { state_id:null, district_id:null }
 export default function ListingForm() {
   const [formData,setFormData]=useState<FormState>(initialFormData)
   const [location,setLocation]=useState<LocationState>(initialLocation)
+  const [photos,setPhotos]=useState<File[]>([])
   const [errors,setErrors]=useState<Record<string,string>>({})
   const [loading,setLoading]=useState(false)
   const [successMessage,setSuccessMessage]=useState('')
@@ -42,7 +46,16 @@ export default function ListingForm() {
     if(errors[name]) setErrors(prev=>({...prev,[name]:''}))
   }
   const handleLocationChange=(value:LocationState)=>{setLocation(value);setErrors(prev=>({...prev,state_id:'',district_id:''}))}
-  const handleReset=()=>{setFormData(initialFormData);setLocation(initialLocation);setErrors({});setSuccessMessage('');setErrorMessage('')}
+  const handlePhotoChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
+    setErrorMessage('')
+    const selected=Array.from(e.target.files||[])
+    if(selected.length>MAX_PHOTOS){setErrorMessage(`You can upload up to ${MAX_PHOTOS} photos.`);return}
+    const invalid=selected.find(file=>!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>MAX_PHOTO_SIZE)
+    if(invalid){setErrorMessage('Each photo must be JPEG, PNG or WebP and no larger than 5 MB.');return}
+    setPhotos(selected)
+  }
+  const removePhoto=(index:number)=>setPhotos(prev=>prev.filter((_,i)=>i!==index))
+  const handleReset=()=>{setFormData(initialFormData);setLocation(initialLocation);setPhotos([]);setErrors({});setSuccessMessage('');setErrorMessage('')}
   const useCurrentLocation=()=>{setErrorMessage('');if(!navigator.geolocation){setErrorMessage('Location access is not supported by this browser.');return}navigator.geolocation.getCurrentPosition(({coords})=>setFormData(prev=>({...prev,latitude:coords.latitude.toFixed(6),longitude:coords.longitude.toFixed(6)})),()=>setErrorMessage('Unable to access your location. You can enter the coordinates manually or leave them blank.'),{enableHighAccuracy:true,timeout:10000})}
 
   const handleSubmit=async(e:React.FormEvent<HTMLFormElement>)=>{
@@ -50,15 +63,19 @@ export default function ListingForm() {
     try{
       const validatedData:ListingFormData=listingFormSchema.parse({...formData,state_id:location.state_id,district_id:location.district_id})
       setLoading(true)
+      const requestBody=new FormData()
+      requestBody.append('payload',JSON.stringify(validatedData))
+      photos.forEach(photo=>requestBody.append('photos',photo))
       const response=await fetch('/api/listings',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(validatedData),
+        body:requestBody,
       })
       const result=await response.json().catch(()=>({}))
       if(!response.ok) throw new Error(result?.error||'Unable to submit the listing.')
-      setSuccessMessage('Listing submitted successfully! It is now pending admin review.')
-      setFormData(initialFormData);setLocation(initialLocation)
+      const uploaded=result?.uploadedPhotoCount||0
+      const failed=result?.photoErrors?.length||0
+      setSuccessMessage(failed?`Listing submitted successfully with ${uploaded} photo${uploaded===1?'':'s'}. ${failed} photo${failed===1?'':'s'} could not be uploaded; an admin can add them later.`:'Listing submitted successfully! It is now pending admin review.')
+      setFormData(initialFormData);setLocation(initialLocation);setPhotos([])
     }catch(error){if(error instanceof ZodError){const fieldErrors:Record<string,string>={};error.issues.forEach(issue=>{const path=issue.path[0]?.toString();if(path)fieldErrors[path]=issue.message});setErrors(fieldErrors)}else{console.error('Listing submission error:',error);setErrorMessage(error instanceof Error?error.message:'Unable to submit the listing. Please try again.')}}finally{setLoading(false)}
   }
 
@@ -74,6 +91,8 @@ export default function ListingForm() {
     <FormField label="Village / Town" name="village" type="text" value={formData.village} onChange={handleChange} error={errors.village} required/>
     <FormField label={formData.listingType==='community_service'?'Activity Timing / Schedule':formData.listingType==='education'?'Class / Office Timing':'Timing / Schedule'} name="timing" type="textarea" value={formData.timing} onChange={handleChange} error={errors.timing} required rows={3}/>
     <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-5"><div><h3 className="font-semibold text-gray-900">Map Location</h3><p className="text-sm text-gray-600 mt-1">Google Maps link is useful for directions. Coordinates allow the listing to appear on our combined map.</p></div><FormField label="Google Maps URL" name="googleMapsUrl" type="url" value={formData.googleMapsUrl} onChange={handleChange} error={errors.googleMapsUrl}/><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><FormField label="Latitude" name="latitude" type="number" value={formData.latitude} onChange={handleChange} error={errors.latitude}/><FormField label="Longitude" name="longitude" type="number" value={formData.longitude} onChange={handleChange} error={errors.longitude}/></div><button type="button" onClick={useCurrentLocation} className="inline-flex px-4 py-2 border border-emerald-700 text-emerald-700 text-sm font-semibold rounded-lg hover:bg-emerald-50">📍 Use My Current Location</button><p className="text-xs text-gray-500">Use this only when you are physically at the listing location.</p></div>
+
+    <div className="border border-emerald-200 bg-emerald-50/50 rounded-xl p-5 md:p-6"><h3 className="text-lg font-semibold text-gray-900">Listing Photos</h3><p className="text-sm text-gray-600 mt-1 mb-4">Add up to 5 clear photos of the place, organisation or service. Photos are stored securely and will be shown publicly only after the listing is approved.</p><input type="file" accept={ACCEPTED_PHOTO_TYPES} multiple onChange={handlePhotoChange} disabled={loading} className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-700 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-emerald-800 disabled:opacity-50"/><p className="mt-2 text-xs text-gray-500">JPEG, PNG or WebP • Maximum 5 MB each • Up to 5 photos</p>{photos.length>0&&<div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">{photos.map((photo,index)=><div key={`${photo.name}-${index}`} className="relative rounded-lg border border-gray-200 bg-white p-2"><img src={URL.createObjectURL(photo)} alt={photo.name} className="h-28 w-full object-cover rounded"/><button type="button" onClick={()=>removePhoto(index)} disabled={loading} className="absolute right-1 top-1 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white shadow">Remove</button><p className="mt-1 truncate text-xs text-gray-600">{photo.name}</p></div>)}</div>}</div>
 
     <div className="border-t pt-6"><h3 className="text-lg font-semibold text-gray-900">Place / Organisation Contact</h3><p className="text-sm text-gray-600 mt-1 mb-5">These contact details may be displayed publicly so visitors can enquire directly with the place, organiser or organisation.</p><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><FormField label="Contact Person" name="contactPerson" type="text" value={formData.contactPerson} onChange={handleChange} error={errors.contactPerson} required/><FormField label="Contact Email" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} required/></div><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><FormField label="Mobile Number" name="mobileNumber" type="tel" value={formData.mobileNumber} onChange={handleChange} error={errors.mobileNumber} required/><FormField label="WhatsApp Number" name="whatsapp" type="tel" value={formData.whatsapp} onChange={handleChange} error={errors.whatsapp}/></div><FormField label="Website / Social Media Page" name="website" type="url" value={formData.website} onChange={handleChange} error={errors.website}/></div>
 
