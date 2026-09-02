@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Affordable Healthcare', description:
 
 export default async function MedicalPage() {
   const supabase = await createClient()
-  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'medical').eq('status', 'approved').order('created_at', { ascending: false })
+  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).in('listing_type', ['medical', 'Affordable Education & Healthcare']).eq('status', 'approved').order('created_at', { ascending: false })
   return <main className="min-h-screen bg-gray-50"><div className="max-w-6xl mx-auto px-4 py-8 md:py-10">
     <div className="mb-8"><Link href="/" className="inline-flex text-sm font-semibold text-emerald-700 hover:underline mb-5">← Back to Home</Link><p className="text-sm font-semibold text-emerald-700 mb-2">Vallalar Jeevakarunyam</p><h1 className="text-3xl md:text-4xl font-bold text-gray-900">Affordable Healthcare</h1><p className="text-gray-600 mt-3 max-w-2xl leading-7">Find approved free and affordable healthcare services, charitable medical facilities and community health initiatives.</p></div>
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8"><p className="font-semibold text-gray-900">Healthcare & Verification Notice</p><p className="text-sm text-gray-700 mt-2 leading-6">Vallalar Jeevakarunyam provides listing information only. Approved listings may still be awaiting verification by our administrators. Please contact providers directly to confirm services, eligibility, charges, appointments and availability.</p></div>
