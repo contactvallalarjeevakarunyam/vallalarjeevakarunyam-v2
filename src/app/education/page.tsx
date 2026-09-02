@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Affordable Education', description: 
 
 export default async function EducationPage() {
   const supabase = await createClient()
-  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).eq('listing_type', 'education').eq('status', 'approved').order('created_at', { ascending: false })
+  const { data: listings, error } = await supabase.from('listings').select(`*, states (name), districts (name)`).in('listing_type', ['education', 'Affordable Education & Healthcare']).eq('status', 'approved').order('created_at', { ascending: false })
   return <main className="min-h-screen bg-gray-50"><div className="max-w-6xl mx-auto px-4 py-8 md:py-10">
     <div className="mb-8"><Link href="/" className="inline-flex text-sm font-semibold text-emerald-700 hover:underline mb-5">← Back to Home</Link><p className="text-sm font-semibold text-emerald-700 mb-2">Vallalar Jeevakarunyam</p><h1 className="text-3xl md:text-4xl font-bold text-gray-900">Affordable Education</h1><p className="text-gray-600 mt-3 max-w-2xl leading-7">Find free and genuinely affordable schools, colleges, tuition and learning centres, vocational training, skill-development institutes and educational support services.</p></div>
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8"><p className="font-semibold text-gray-900">Education & Verification Notice</p><p className="text-sm text-gray-700 mt-2 leading-6">Listings are published after administrative approval, but may still be awaiting verification by Vallalar Jeevakarunyam. Please contact providers directly to confirm courses, eligibility, admission, fees, scholarships, timings and availability.</p></div>
